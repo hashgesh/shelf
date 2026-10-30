@@ -311,3 +311,15 @@ func TestMatrixWithoutProfiles(t *testing.T) {
 		t.Error("missing no-profiles message")
 	}
 }
+
+func TestDetailMoreIndicator(t *testing.T) {
+	m := newTestModel(t, 120, 20, false)
+	m = press(t, m, "G", "tab", "tab", "enter")
+	if !strings.Contains(m.View(), "satır daha") {
+		t.Error("missing more-content indicator")
+	}
+	m = press(t, m, "G")
+	if v := m.View(); strings.Contains(v, "satır daha") || !strings.Contains(v, "conan install --requires") {
+		t.Errorf("bottom of detail:\n%s", v)
+	}
+}

@@ -49,7 +49,7 @@ func newStyles(r *lipgloss.Renderer, ascii bool) styles {
 	s.header = r.NewStyle().Bold(true).Underline(true)
 	s.dim = r.NewStyle().Foreground(muted)
 	s.selected = r.NewStyle().Reverse(true).Bold(true)
-	s.inactive = r.NewStyle().Bold(true).Underline(true)
+	s.inactive = r.NewStyle().Bold(true)
 	s.errText = r.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
 	s.warnText = r.NewStyle().Foreground(lipgloss.Color("11"))
 	s.okText = r.NewStyle().Foreground(lipgloss.Color("10"))
