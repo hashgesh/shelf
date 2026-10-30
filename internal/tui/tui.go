@@ -13,6 +13,7 @@ import (
 // Options configures Run.
 type Options struct {
 	Load      Loader
+	Copy      CopyFunc // nil disables the c key
 	RepoLabel string
 	ASCII     bool
 	NoColor   bool
@@ -31,6 +32,7 @@ func Run(opts Options) error {
 		r.SetColorProfile(termenv.Ascii)
 	}
 	m := newModel(opts.Load, opts.RepoLabel, newStyles(r, opts.ASCII))
+	m.copy = opts.Copy
 
 	progOpts := []tea.ProgramOption{tea.WithAltScreen(), tea.WithOutput(out)}
 	if opts.Input != nil {

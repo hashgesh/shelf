@@ -414,3 +414,84 @@ func TestAssignProfilesPrefersMostSpecific(t *testing.T) {
 		t.Errorf("Profile=%q Profiles=%v", b.Profile, b.Profiles)
 	}
 }
+
+func TestInstallCommand(t *testing.T) {
+	b := &Binary{Name: "zlib", Version: "1.3.1", RecipeRevision: "abc123", Profile: "linux-gcc12-x86_64-release",
+		Options: map[string]string{"shared": "False", "fPIC": "True"}}
+	want := `conan install --requires="zlib/1.3.1#abc123" -pr:h linux-gcc12-x86_64-release -o "zlib/*:fPIC=True" -o "zlib/*:shared=False"`
+	if got := InstallCommand(b); got != want {
+		t.Errorf("\n got %s\nwant %s", got, want)
+	}
+
+	b = &Binary{Name: "fmt", Version: "10.2.1", User: "mycompany", Channel: "stable", RecipeRevision: "r"}
+	b.SetSettings(map[string]string{"os": "Windows", "build_type": "Debug"})
+	want = `conan install --requires="fmt/10.2.1@mycompany/stable#r" -s build_type=Debug -s os=Windows`
+	if got := InstallCommand(b); got != want {
+		t.Errorf("\n got %s\nwant %s", got, want)
+	}
+}
+
+func TestFilter(t *testing.T) {
+	cat, _ := BuildCatalog(loadFixture(t), nil)
+	profiles, _, _ := LoadProfiles(filepath.Join(fixtureDir, "profiles"))
+	MatchProfiles(cat, profiles)
+	bs := cat.Find("zlib").Versions[0].Latest().Binaries
+	tests := []struct {
+		f    Filter
+		want int
+	}{
+		{Filter{}, 9},
+		{Filter{OS: "win"}, 4},
+		{Filter{OS: "Linux", BuildType: "rel"}, 3},
+		{Filter{Compiler: "gcc12", Arch: "armv8"}, 1},
+		{Filter{Compiler: "msvc19"}, 4},
+		{Filter{Profile: "debug"}, 4},
+		{Filter{OS: "mac"}, 0},
+	}
+	for _, tt := range tests {
+		if got := len(tt.f.Apply(bs)); got != tt.want {
+			t.Errorf("%+v: %d binaries, want %d", tt.f, got, tt.want)
+		}
+	}
+	if d := (Filter{OS: "win", BuildType: "Release"}).Describe(); d != "os=win build=Release" {
+		t.Errorf("Describe = %q", d)
+	}
+}
+
+func TestParseRefSpecAndResolve(t *testing.T) {
+	cat, _ := BuildCatalog(loadFixture(t), nil)
+	tests := []struct {
+		in      string
+		wantRef string
+		wantErr string
+	}{
+		{"zlib", "zlib/1.3.1", ""},
+		{"zlib/1.2.13", "zlib/1.2.13", ""},
+		{"fmt", "fmt/11.0.2@mycompany/stable", ""},
+		{"fmt/10.2.1@mycompany/stable", "fmt/10.2.1@mycompany/stable", ""},
+		{"zlib/1.3.1@_/_", "zlib/1.3.1", ""},
+		{"zlib/9.9", "", "sürüm bulunamadı"},
+		{"nope", "", "paket bulunamadı"},
+	}
+	for _, tt := range tests {
+		spec, err := ParseRefSpec(tt.in)
+		if err != nil {
+			t.Fatalf("ParseRefSpec(%q): %v", tt.in, err)
+		}
+		p, v, err := cat.Resolve(spec)
+		if tt.wantErr != "" {
+			if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+				t.Errorf("%s: err = %v", tt.in, err)
+			}
+			continue
+		}
+		if err != nil || v.Ref(p.Name) != tt.wantRef {
+			t.Errorf("%s: got %v, %v", tt.in, v, err)
+		}
+	}
+	for _, bad := range []string{"", "a/b/c", "zlib/1.0@user"} {
+		if _, err := ParseRefSpec(bad); err == nil {
+			t.Errorf("ParseRefSpec(%q) succeeded", bad)
+		}
+	}
+}

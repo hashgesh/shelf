@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
+	"github.com/halilibrahimonus/shelf/internal/clipboard"
 	"github.com/halilibrahimonus/shelf/internal/conan"
 	"github.com/halilibrahimonus/shelf/internal/tui"
 )
@@ -36,6 +37,7 @@ func (a *app) runTUI(cmd *cobra.Command) error {
 		Load: func(ctx context.Context) (*conan.LoadResult, error) {
 			return conan.Load(ctx, src, opts)
 		},
+		Copy:      clipboard.New(out).Copy,
 		RepoLabel: label,
 		ASCII:     a.flags.ascii,
 		NoColor:   noColor,
