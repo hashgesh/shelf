@@ -1,0 +1,15 @@
+version: "2"
+linters:
+  enable:
+    - errorlint
+    - gocritic
+    - misspell
+    - revive
+    - unconvert
+  settings:
+    misspell:
+      locale: US
+formatters:
+  enable:
+    - gofmt
+    - goimports
