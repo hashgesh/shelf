@@ -78,6 +78,9 @@ type model struct {
 
 	detail *detail
 
+	matrixMode     bool
+	mxRows, mxCols cursor
+
 	status    string
 	statusErr bool
 	statusSeq int
@@ -236,6 +239,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m, cmd = m.handleKey(msg)
 	}
 	m.scroll()
+	m.scrollMatrix()
 	m.clampDetail()
 	return m, cmd
 }
@@ -305,6 +309,12 @@ func (m model) handleKey(msg tea.KeyMsg) (model, tea.Cmd) {
 	if m.result == nil {
 		return m, nil
 	}
+	if next, cmd, ok := m.handleFilterKey(key); ok {
+		return next, cmd
+	}
+	if m.matrixMode {
+		return m.handleMatrixKey(key)
+	}
 
 	switch key {
 	case "tab":
@@ -337,12 +347,21 @@ func (m model) handleKey(msg tea.KeyMsg) (model, tea.Cmd) {
 		m.moveFocused(-m.focusedCursor().n)
 	case "end", "G":
 		m.moveFocused(m.focusedCursor().n)
+	case "c":
+		return m, m.copyInstall()
+	}
+	return m, nil
+}
 
+// handleFilterKey handles the search and quick filter keys shared by the
+// browser and the matrix.
+func (m model) handleFilterKey(key string) (model, tea.Cmd, bool) {
+	switch key {
 	case "/":
 		m.searching = true
 		m.input.SetValue(m.search)
 		m.input.CursorEnd()
-		return m, m.input.Focus()
+		return m, m.input.Focus(), true
 	case "w":
 		m.toggleOS("Windows")
 	case "l":
@@ -356,11 +375,13 @@ func (m model) handleKey(msg tea.KeyMsg) (model, tea.Cmd) {
 		m.setSearch("")
 		m.binaries.reset()
 		m.syncCursors()
-		return m, m.setStatus("Filtreler temizlendi", false)
-	case "c":
-		return m, m.copyInstall()
+		return m, m.setStatus("Filtreler temizlendi", false), true
+	case "m":
+		m.matrixMode = !m.matrixMode
+	default:
+		return m, nil, false
 	}
-	return m, nil
+	return m, nil, true
 }
 
 func (m *model) toggleOS(os string) {

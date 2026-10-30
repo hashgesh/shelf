@@ -53,8 +53,53 @@ func (s styler) wrap(code, text string) string {
 	return "\x1b[" + code + "m" + text + "\x1b[0m"
 }
 
-func (s styler) bold(t string) string { return s.wrap("1", t) }
-func (s styler) dim(t string) string  { return s.wrap("2", t) }
+func (s styler) bold(t string) string   { return s.wrap("1", t) }
+func (s styler) dim(t string) string    { return s.wrap("2", t) }
+func (s styler) red(t string) string    { return s.wrap("31", t) }
+func (s styler) green(t string) string  { return s.wrap("32", t) }
+func (s styler) yellow(t string) string { return s.wrap("33", t) }
+
+// sep returns the separator used in summary lines.
+func (s styler) sep() string {
+	if s.ascii {
+		return " | "
+	}
+	return " · "
+}
+
+// times returns the "×" sign, or "x" in ASCII mode.
+func (s styler) times() string {
+	if s.ascii {
+		return " x "
+	}
+	return " × "
+}
+
+// cellSymbol returns the plain symbol for a matrix cell.
+func (s styler) cellSymbol(state conan.CellState) string {
+	switch {
+	case state == conan.CellAvailable && s.ascii:
+		return "+"
+	case state == conan.CellAvailable:
+		return "✓"
+	case state == conan.CellUnknown:
+		return "?"
+	case s.ascii:
+		return "-"
+	}
+	return "✗"
+}
+
+// colorCell colors already padded cell text by state.
+func (s styler) colorCell(state conan.CellState, text string) string {
+	switch state {
+	case conan.CellAvailable:
+		return s.green(text)
+	case conan.CellUnknown:
+		return s.yellow(text)
+	}
+	return s.red(text)
+}
 
 // table renders aligned columns. Widths are computed on unstyled text; the
 // optional style hook colors a cell after padding.

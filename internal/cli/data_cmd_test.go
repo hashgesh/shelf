@@ -153,3 +153,51 @@ func TestASCIIAndNoColorFlagsAccepted(t *testing.T) {
 		t.Fatalf("got %+v", r)
 	}
 }
+
+func TestMatrixFixture(t *testing.T) {
+	r := runFixture(t, "matrix", "--ascii")
+	if r.code != ExitOK {
+		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
+	}
+	for _, want := range []string{"PAKET", "linux-gcc12-armv8-release", "zlib/1.3.1", "+", "-", "4 paket x 5 profil | 6 eksik"} {
+		if !strings.Contains(r.stdout, want) {
+			t.Errorf("missing %q in:\n%s", want, r.stdout)
+		}
+	}
+	if strings.ContainsAny(r.stdout, "✓✗×·") {
+		t.Error("non-ASCII symbols with --ascii")
+	}
+
+	r = runFixture(t, "matrix", "--build", "Release")
+	if !strings.Contains(r.stdout, "✓") || strings.Contains(r.stdout, "debug") {
+		t.Errorf("release matrix:\n%s", r.stdout)
+	}
+}
+
+func TestMatrixJSON(t *testing.T) {
+	r := runFixture(t, "matrix", "openssl", "--json")
+	if r.code != ExitOK {
+		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
+	}
+	var v matrixJSON
+	if err := json.Unmarshal([]byte(r.stdout), &v); err != nil {
+		t.Fatal(err)
+	}
+	if len(v.Rows) != 1 || len(v.Profiles) != 5 || v.Missing != 2 {
+		t.Fatalf("matrix = %+v", v)
+	}
+	cells := v.Rows[0].Cells
+	if cells["linux-gcc12-x86_64-release"].State != conan.CellAvailable || len(cells["linux-gcc12-x86_64-release"].PackageIDs) != 2 {
+		t.Errorf("linux release cell = %+v", cells["linux-gcc12-x86_64-release"])
+	}
+	if cells["linux-gcc12-armv8-release"].State != conan.CellMissing {
+		t.Errorf("armv8 cell = %+v", cells["linux-gcc12-armv8-release"])
+	}
+}
+
+func TestMatrixNoProfiles(t *testing.T) {
+	r := runFixture(t, "--profiles-dir", t.TempDir(), "matrix")
+	if r.code != ExitNoResult || !strings.Contains(r.stderr, "Profil bulunamadı") {
+		t.Errorf("got %+v", r)
+	}
+}
