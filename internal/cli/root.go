@@ -109,8 +109,7 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 		Args:              noArgs,
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			// The TUI is wired in later; show help for now.
-			return cmd.Help()
+			return a.runTUI(cmd)
 		},
 	}
 	root.SetVersionTemplate("shelf {{.Version}}\n")
