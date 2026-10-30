@@ -16,7 +16,7 @@ func (a *app) newConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
 		Short: "Yapılandırmayı oluştur veya görüntüle",
-		Args:  cobra.NoArgs,
+		Args:  noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -25,13 +25,13 @@ func (a *app) newConfigCmd() *cobra.Command {
 		&cobra.Command{
 			Use:   "init",
 			Short: "Etkileşimli olarak config dosyası oluştur",
-			Args:  cobra.NoArgs,
+			Args:  noArgs,
 			RunE:  a.runConfigInit,
 		},
 		&cobra.Command{
 			Use:   "show [bayraklar]",
 			Short: "Etkin yapılandırmayı ve değerlerin kaynağını göster (gizli bilgiler maskelenir)",
-			Args:  cobra.NoArgs,
+			Args:  noArgs,
 			RunE:  a.runConfigShow,
 		},
 	)

@@ -126,7 +126,7 @@ func (b *Binary) Summary() string {
 		if b.MetadataSource == SourceNone {
 			return "bilinmiyor"
 		}
-		return "ayarsız" // header-only or settings-free package
+		return "ayarsız (header-only)"
 	}
 	return strings.Join(parts, "_")
 }

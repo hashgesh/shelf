@@ -184,9 +184,19 @@ func MatchProfiles(cat *Catalog, profiles []Profile) {
 	}
 }
 
-// AssignProfiles sets b.Profiles and b.Profile from profiles.
+// AssignProfiles sets b.Profiles and b.Profile from profiles. A
+// settings-free binary (header-only) fits every profile, so it gets all of
+// them in Profiles but no single Profile label.
 func AssignProfiles(b *Binary, profiles []Profile) {
 	b.Profiles, b.Profile = nil, ""
+	if !b.HasSettings() {
+		for _, p := range profiles {
+			if p.Matches(b) {
+				b.Profiles = append(b.Profiles, p.Name)
+			}
+		}
+		return
+	}
 	best := -1
 	for _, p := range profiles {
 		if !p.Matches(b) {
