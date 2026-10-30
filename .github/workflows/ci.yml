@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+    tags-ignore: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: go mod tidy is clean
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+      - name: Test
+        run: go test -race -count=1 ./...
+      - name: Cross-compile release targets
+        run: make release
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.5.0
+      - name: Lint Windows build
+        # The action above put golangci-lint on PATH; reuse it for GOOS=windows
+        # so the Win32 clipboard code is checked too.
+        run: GOOS=windows golangci-lint run ./...
+
+  windows:
+    name: test (windows, build.ps1)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Test
+        shell: pwsh
+        run: ./build.ps1 test
+      - name: Build
+        shell: pwsh
+        run: |
+          ./build.ps1 build
+          ./bin/shelf.exe --version
+          ./bin/shelf.exe --fixture testdata/aql.json list
