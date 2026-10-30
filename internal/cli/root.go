@@ -41,6 +41,8 @@ type globalFlags struct {
 	insecure    bool
 	timeout     time.Duration
 
+	fixture string // hidden: read an AQL response file instead of a server
+
 	json    bool
 	ascii   bool
 	noColor bool
@@ -104,7 +106,7 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 		Version:           fmt.Sprintf("%s (commit %s, derleme %s)", info.Version, info.Commit, info.Date),
 		SilenceErrors:     true,
 		SilenceUsage:      true,
-		Args:              cobra.NoArgs,
+		Args:              noArgs,
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			// The TUI is wired in later; show help for now.
@@ -127,9 +129,14 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 	pf.BoolVar(&f.ascii, "ascii", false, "✓/✗ yerine +/- gibi ASCII karakterler kullan")
 	pf.BoolVar(&f.noColor, "no-color", false, "renkleri kapat")
 	pf.BoolP("help", "h", false, "yardımı göster")
+	pf.StringVar(&f.fixture, "fixture", "", "sunucu yerine AQL yanıt dosyası kullan (geliştirme için)")
+	_ = pf.MarkHidden("fixture")
 	root.Flags().BoolP("version", "v", false, "sürüm bilgisini göster")
 
-	root.AddCommand(a.newConfigCmd(), a.newDebugCmd())
+	root.SetFlagErrorFunc(func(c *cobra.Command, err error) error {
+		return fmt.Errorf("%w (yardım için: %s --help)", err, c.CommandPath())
+	})
+	root.AddCommand(a.newListCmd(), a.newShowCmd(), a.newConfigCmd(), a.newDebugCmd())
 	root.SetHelpCommand(newHelpCmd())
 	localize(root)
 	return root

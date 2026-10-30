@@ -35,7 +35,7 @@ func (a *app) newDebugCmd() *cobra.Command {
 		Use:    "debug",
 		Short:  "Tanılama komutları",
 		Hidden: true,
-		Args:   cobra.NoArgs,
+		Args:   noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -48,7 +48,7 @@ func (a *app) newDebugPingCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "ping",
 		Short: "Sunucu bağlantısını ve her repo için AQL erişimini dene",
-		Args:  cobra.NoArgs,
+		Args:  noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cfg, c, err := a.newClient(cmd)
 			if err != nil {
@@ -89,7 +89,7 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 		Example: "  shelf debug aql --limit 3 --out aql-ornek.json\n" +
 			"  shelf debug aql --name conaninfo.txt\n" +
 			`  shelf debug aql --query 'items.find({"repo":"conan-local"}).include("name","path").limit(10)'`,
-		Args: cobra.NoArgs,
+		Args: noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cfg, c, err := a.newClient(cmd)
 			if err != nil {

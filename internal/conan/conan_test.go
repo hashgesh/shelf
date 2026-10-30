@@ -224,7 +224,7 @@ func TestConaninfoFallbackFromFixture(t *testing.T) {
 		t.Error("no binary filled from conaninfo")
 	}
 	hdr := cat.Find("nlohmann_json").Binaries()[0]
-	if hdr.HasSettings() || hdr.Summary() != "ayarsız" {
+	if hdr.HasSettings() || hdr.Summary() != "ayarsız (header-only)" || hdr.Label() != hdr.Summary() {
 		t.Errorf("header-only binary = %+v summary=%q", hdr, hdr.Summary())
 	}
 }
