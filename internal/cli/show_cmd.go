@@ -104,7 +104,7 @@ func (a *app) newShowCmd() *cobra.Command {
 				return noResultError{msg: "Eşleşen binary yok."}
 			}
 			renderBinaries(out, st, binaries, allRevisions)
-			fmt.Fprintf(out, "\n%d binary · %s\n", len(binaries), s.repoLabel)
+			fmt.Fprintf(out, "\n%d binary%s%s\n", len(binaries), st.sep(), s.repoLabel)
 			return nil
 		},
 	}

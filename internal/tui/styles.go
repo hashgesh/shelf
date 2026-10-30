@@ -85,6 +85,13 @@ func (s styles) dot() string {
 	return " · "
 }
 
+func (s styles) times() string {
+	if s.ascii {
+		return " x "
+	}
+	return " × "
+}
+
 func (s styles) cursorMark() string {
 	if s.ascii {
 		return "> "

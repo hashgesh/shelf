@@ -495,3 +495,62 @@ func TestParseRefSpecAndResolve(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildMatrix(t *testing.T) {
+	profiles, _, _ := LoadProfiles(filepath.Join(fixtureDir, "profiles"))
+	cat, _ := BuildCatalog(loadFixture(t), nil)
+	MatchProfiles(cat, profiles)
+
+	m := BuildMatrix(cat, profiles, MatrixOptions{})
+	if len(m.Rows) != 4 || len(m.Profiles) != 5 {
+		t.Fatalf("rows=%d profiles=%d", len(m.Rows), len(m.Profiles))
+	}
+	state := func(pkg, prof string) CellState {
+		for _, r := range m.Rows {
+			if r.Package != pkg {
+				continue
+			}
+			for i, p := range m.Profiles {
+				if p.Name == prof {
+					return r.Cells[i].State
+				}
+			}
+		}
+		t.Fatalf("no cell %s/%s", pkg, prof)
+		return 0
+	}
+	tests := []struct {
+		pkg, prof string
+		want      CellState
+	}{
+		{"zlib", "win-msvc194-x64-debug", CellAvailable},
+		{"zlib", "linux-gcc12-armv8-release", CellAvailable},
+		{"openssl", "win-msvc194-x64-debug", CellUnknown}, // one binary has no metadata
+		{"fmt", "win-msvc194-x64-release", CellMissing},   // fmt 11.0.2 is Linux only
+		{"fmt", "linux-gcc12-x86_64-release", CellAvailable},
+		{"nlohmann_json", "win-msvc194-x64-debug", CellUnknown}, // metadata not loaded here
+	}
+	for _, tt := range tests {
+		if got := state(tt.pkg, tt.prof); got != tt.want {
+			t.Errorf("%s × %s = %v, want %v", tt.pkg, tt.prof, got, tt.want)
+		}
+	}
+	for _, r := range m.Rows {
+		if r.Package == "zlib" {
+			if n := len(r.Cells[3].Binaries); n != 2 { // win release: shared + static
+				t.Errorf("zlib win release binaries = %d", n)
+			}
+		}
+	}
+
+	rel := BuildMatrix(cat, profiles, MatrixOptions{Filter: Filter{BuildType: "Release"}, AllVersions: true})
+	if len(rel.Profiles) != 3 || len(rel.Rows) != 6 {
+		t.Errorf("release matrix: profiles=%d rows=%d", len(rel.Profiles), len(rel.Rows))
+	}
+	if win := BuildMatrix(cat, profiles, MatrixOptions{Filter: Filter{OS: "win", Profile: "debug"}}); len(win.Profiles) != 1 {
+		t.Errorf("win debug profiles = %d", len(win.Profiles))
+	}
+	if m.Missing() == 0 {
+		t.Error("expected missing cells")
+	}
+}

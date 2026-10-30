@@ -37,14 +37,10 @@ func (a *app) newListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			needle := ""
-			if len(args) == 1 {
-				needle = strings.ToLower(args[0])
-			}
 
 			var pkgs []listPackageJSON
 			for _, p := range s.result.Catalog.Packages {
-				if needle != "" && !strings.Contains(strings.ToLower(p.Name), needle) {
+				if len(args) == 1 && !containsFold(p.Name, args[0]) {
 					continue
 				}
 				lp := listPackageJSON{Name: p.Name}
@@ -98,7 +94,7 @@ func (a *app) newListCmd() *cobra.Command {
 					return s
 				}
 				t.render(cmd.OutOrStdout(), st)
-				fmt.Fprintf(cmd.OutOrStdout(), "\n%d paket · %s\n", len(pkgs), s.repoLabel)
+				fmt.Fprintf(cmd.OutOrStdout(), "\n%d paket%s%s\n", len(pkgs), st.sep(), s.repoLabel)
 			}
 			if len(pkgs) == 0 {
 				return noResultError{msg: "Paket bulunamadı."}
@@ -106,4 +102,8 @@ func (a *app) newListCmd() *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func containsFold(s, sub string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(sub))
 }

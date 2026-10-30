@@ -227,3 +227,87 @@ func TestStatusExpires(t *testing.T) {
 		t.Error("status not cleared")
 	}
 }
+
+func TestMatrixMode(t *testing.T) {
+	m := newTestModel(t, 200, 30, false)
+	m = press(t, m, "m")
+	if !m.matrixMode {
+		t.Fatal("m should open the matrix")
+	}
+	v := m.View()
+	for _, want := range []string{"Matrix", "linux-gcc12-armv8-release", "win-msvc194-x64-release", "zlib/1.3.1", "✓", "✗", "6 eksik"} {
+		if !strings.Contains(v, want) {
+			t.Errorf("matrix view missing %q", want)
+		}
+	}
+
+	// Quick filters select columns; search selects rows.
+	m = press(t, m, "w", "r")
+	if mx := m.matrix(); len(mx.Profiles) != 1 || mx.Profiles[0].Name != "win-msvc194-x64-release" {
+		t.Errorf("w+r profiles = %v", mx.Profiles)
+	}
+	m = press(t, m, "0")
+	m = press(t, m, "/", "z", "l", "enter")
+	if mx := m.matrix(); len(mx.Rows) != 1 || mx.Rows[0].Package != "zlib" {
+		t.Errorf("search rows = %d", len(mx.Rows))
+	}
+	m = press(t, m, "esc") // esc in matrix leaves it; the search was already confirmed
+	if m.matrixMode {
+		t.Error("esc should leave the matrix")
+	}
+}
+
+func TestMatrixEnterOpensBinaries(t *testing.T) {
+	m := newTestModel(t, 200, 30, false)
+	m = press(t, m, "m", "G") // zlib row
+	for i := 0; i < 3; i++ {
+		m = press(t, m, "right") // linux-gcc12-x86_64-release? columns are sorted by name
+	}
+	prof := m.matrix().Profiles[m.mxCols.pos].Name
+	m = press(t, m, "enter")
+	if m.matrixMode || m.currentPackage().Name != "zlib" || m.focus != focusBinaries {
+		t.Fatalf("matrixMode=%v pkg=%s focus=%d", m.matrixMode, m.currentPackage().Name, m.focus)
+	}
+	if m.filter.Profile != prof {
+		t.Errorf("profile filter = %q, want %q", m.filter.Profile, prof)
+	}
+	for _, b := range m.currentBinaries() {
+		if !strings.Contains(strings.Join(b.Profiles, ","), prof) {
+			t.Errorf("binary %s does not match %s", b, prof)
+		}
+	}
+	if !strings.Contains(m.View(), "profil: "+prof) {
+		t.Error("profile filter not shown")
+	}
+}
+
+func TestMatrixColumnsScroll(t *testing.T) {
+	m := newTestModel(t, 70, 20, true)
+	m = press(t, m, "m")
+	for i := 0; i < 4; i++ {
+		m = press(t, m, "right")
+	}
+	v := m.View()
+	if !strings.Contains(v, "win-msvc194-x64-release") || !strings.Contains(v, "sütun") {
+		t.Errorf("last column not scrolled into view:\n%s", v)
+	}
+	for _, r := range []string{"×", "·", "✓", "✗"} {
+		if strings.Contains(v, r) {
+			t.Errorf("ASCII matrix contains %q", r)
+		}
+	}
+	for i, l := range strings.Split(v, "\n") {
+		if w := len([]rune(l)); w > 70 {
+			t.Errorf("line %d too wide: %d", i, w)
+		}
+	}
+}
+
+func TestMatrixWithoutProfiles(t *testing.T) {
+	m := newTestModel(t, 120, 20, false)
+	m.result.Profiles = nil
+	m = press(t, m, "m")
+	if !strings.Contains(m.View(), "Profil yok") {
+		t.Error("missing no-profiles message")
+	}
+}

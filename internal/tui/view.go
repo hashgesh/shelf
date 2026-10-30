@@ -28,6 +28,8 @@ func (m model) View() string {
 		body = m.helpView(bodyH)
 	case m.detail != nil:
 		body = m.detailView(bodyH)
+	case m.matrixMode:
+		body = m.matrixView(bodyH)
 	default:
 		body = m.bodyView()
 	}
@@ -40,6 +42,9 @@ func (m model) center(text string, h int) string {
 
 func (m model) topBar() string {
 	parts := []string{"shelf", m.repoLabel}
+	if m.matrixMode {
+		parts = append(parts, "Matrix")
+	}
 	if m.result != nil {
 		parts = append(parts, fmt.Sprintf("%d paket", len(m.pkgs())))
 	}
@@ -67,11 +72,16 @@ func (m model) hints() [][2]string {
 		return [][2]string{{nav, "kaydır"}, {"c", "kopyala"}, {"Esc", "kapat"}}
 	case m.result == nil:
 		return [][2]string{{"R", "yeniden dene"}, {"q", "çıkış"}}
+	case m.matrixMode:
+		return [][2]string{
+			{nav, "satır"}, {"←→", "profil"}, {"Enter", "binary'leri aç"}, {"/", "ara"},
+			{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", "temizle"}, {"m", "geri"}, {"q", "çıkış"},
+		}
 	}
 	return [][2]string{
 		{nav, "gezin"}, {"Tab", "panel"}, {"Enter", "detay"}, {"/", "ara"},
 		{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", "temizle"},
-		{"c", "kopyala"}, {"?", "yardım"}, {"q", "çıkış"},
+		{"c", "kopyala"}, {"m", "matrix"}, {"?", "yardım"}, {"q", "çıkış"},
 	}
 }
 
@@ -83,6 +93,9 @@ func (m model) activeFilters() string {
 	}
 	if m.filter.BuildType != "" {
 		parts = append(parts, m.filter.BuildType)
+	}
+	if m.filter.Profile != "" {
+		parts = append(parts, "profil: "+m.filter.Profile)
 	}
 	if m.search != "" && !m.searching {
 		parts = append(parts, "ara: "+m.search)
@@ -373,6 +386,7 @@ func (m model) helpView(h int) string {
 		{"r / d", "sadece Release / Debug"},
 		{"0", "filtreleri ve aramayı temizle"},
 		{"c", "conan install komutunu kopyala"},
+		{"m", "matrix (paket × profil) aç / kapat"},
 		{"F5 / R", "verileri yeniden yükle"},
 		{"?", "bu yardımı aç / kapat"},
 		{"q, Ctrl+C", "çıkış"},

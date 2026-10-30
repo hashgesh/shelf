@@ -135,7 +135,7 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 	root.SetFlagErrorFunc(func(c *cobra.Command, err error) error {
 		return fmt.Errorf("%w (yardım için: %s --help)", err, c.CommandPath())
 	})
-	root.AddCommand(a.newListCmd(), a.newShowCmd(), a.newConfigCmd(), a.newDebugCmd())
+	root.AddCommand(a.newListCmd(), a.newShowCmd(), a.newMatrixCmd(), a.newConfigCmd(), a.newDebugCmd())
 	root.SetHelpCommand(newHelpCmd())
 	localize(root)
 	return root
