@@ -48,22 +48,26 @@ func (a *app) openSource(cmd *cobra.Command) (*config.Config, conan.Source, stri
 	return cfg, c, "", nil
 }
 
+func (a *app) loadOptions(cfg *config.Config) conan.LoadOptions {
+	cache := ""
+	if a.flags.fixture == "" {
+		cache = conan.DefaultCacheDir()
+	}
+	return conan.LoadOptions{
+		Repos:          cfg.Repos,
+		MetadataSource: cfg.MetadataSource,
+		ProfilesDir:    cfg.ProfilesDir,
+		CacheDir:       cache,
+	}
+}
+
 // load fetches the catalog and prints load warnings to stderr.
 func (a *app) load(cmd *cobra.Command) (*session, error) {
 	cfg, src, label, err := a.openSource(cmd)
 	if err != nil {
 		return nil, err
 	}
-	cache := ""
-	if a.flags.fixture == "" {
-		cache = conan.DefaultCacheDir()
-	}
-	res, err := conan.Load(cmd.Context(), src, conan.LoadOptions{
-		Repos:          cfg.Repos,
-		MetadataSource: cfg.MetadataSource,
-		ProfilesDir:    cfg.ProfilesDir,
-		CacheDir:       cache,
-	})
+	res, err := conan.Load(cmd.Context(), src, a.loadOptions(cfg))
 	if err != nil {
 		return nil, err
 	}

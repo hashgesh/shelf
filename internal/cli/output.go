@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/mattn/go-runewidth"
 	"github.com/muesli/termenv"
 	"golang.org/x/term"
 
 	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/halilibrahimonus/shelf/internal/format"
 )
 
 // styler applies ANSI styles when color is enabled and picks ASCII
@@ -113,40 +113,12 @@ func writeJSON(w io.Writer, v any) error {
 	return enc.Encode(v)
 }
 
-// humanSize formats bytes as B, KB, MB or GB (base 1024).
-func humanSize(n int64) string {
-	const unit = 1024
-	if n < unit {
-		return fmt.Sprintf("%d B", n)
-	}
-	div, exp := int64(unit), 0
-	for m := n / unit; m >= unit && exp < 2; m /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(n)/float64(div), "KMG"[exp])
-}
-
-func formatTime(t time.Time) string {
-	if t.IsZero() {
-		return "-"
-	}
-	return t.Local().Format("2006-01-02 15:04")
-}
-
-func shortID(id string) string {
-	if len(id) > 8 {
-		return id[:8]
-	}
-	return id
-}
-
-func orDash(s string) string {
-	if s == "" {
-		return "-"
-	}
-	return s
-}
+var (
+	humanSize  = format.Size
+	formatTime = format.Time
+	shortID    = format.ShortID
+	orDash     = format.Dash
+)
 
 const maxWarnings = 5
 
