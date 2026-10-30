@@ -181,6 +181,13 @@ func (m model) detailView(bodyH int) string {
 	for _, l := range all[start:end] {
 		lines = append(lines, l.style(m.st.fit(l.text, innerW)))
 	}
+	if end < len(all) && len(lines) > 0 {
+		arrow := "↓"
+		if m.st.ascii {
+			arrow = "v"
+		}
+		lines[len(lines)-1] = m.st.dim.Render(m.st.fit(fmt.Sprintf("  %s %d satır daha (j/k ile kaydır)", arrow, len(all)-end+1), innerW))
+	}
 	for len(lines) < rows {
 		lines = append(lines, strings.Repeat(" ", innerW))
 	}
