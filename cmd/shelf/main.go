@@ -2,8 +2,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
+
+	"github.com/halilibrahimonus/shelf/internal/cli"
 )
 
 // Build metadata, injected at link time via -ldflags "-X main.version=...".
@@ -14,10 +15,5 @@ var (
 )
 
 func main() {
-	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
-		fmt.Printf("shelf %s (commit %s, built %s)\n", version, commit, date)
-		return
-	}
-	fmt.Fprintln(os.Stderr, "shelf: henüz uygulanmadı")
-	os.Exit(1)
+	os.Exit(cli.Execute(cli.BuildInfo{Version: version, Commit: commit, Date: date}))
 }
