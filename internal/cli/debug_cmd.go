@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/halilibrahimonus/shelf/internal/artifactory"
+	"github.com/halilibrahimonus/shelf/internal/conan"
 	"github.com/halilibrahimonus/shelf/internal/config"
 )
 
@@ -127,7 +128,7 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 	}
 	f := cmd.Flags()
 	f.StringVar(&query, "query", "", "çalıştırılacak ham AQL sorgusu (verilirse diğer bayraklar yok sayılır)")
-	f.StringVar(&name, "name", "conan_package.tgz", "aranacak dosya adı (boş: tümü)")
+	f.StringVar(&name, "name", conan.PackageFile, "aranacak dosya adı (boş: tümü)")
 	f.IntVar(&limit, "limit", 5, "en fazla kaç sonuç")
 	f.StringVar(&outPath, "out", "", "çıktıyı ekran yerine bu dosyaya yaz")
 	return cmd
