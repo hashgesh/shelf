@@ -66,6 +66,12 @@ func press(t *testing.T, m model, keys ...string) model {
 			msg = tea.KeyMsg{Type: tea.KeyUp}
 		case "esc":
 			msg = tea.KeyMsg{Type: tea.KeyEsc}
+		case "enter":
+			msg = tea.KeyMsg{Type: tea.KeyEnter}
+		case "left":
+			msg = tea.KeyMsg{Type: tea.KeyLeft}
+		case "backspace":
+			msg = tea.KeyMsg{Type: tea.KeyBackspace}
 		case "f5":
 			msg = tea.KeyMsg{Type: tea.KeyF5}
 		default:
@@ -193,9 +199,9 @@ func TestNavigation(t *testing.T) {
 	if m.focus != focusBinaries {
 		t.Errorf("shift+tab focus = %d", m.focus)
 	}
-	m = press(t, m, "h", "h", "h")
+	m = press(t, m, "left", "left", "left")
 	if m.focus != focusPackages {
-		t.Errorf("h focus = %d", m.focus)
+		t.Errorf("left focus = %d", m.focus)
 	}
 }
 
