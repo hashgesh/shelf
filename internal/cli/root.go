@@ -2,14 +2,17 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/halilibrahimonus/shelf/internal/artifactory"
 	"github.com/halilibrahimonus/shelf/internal/config"
 )
 
@@ -50,6 +53,7 @@ type app struct {
 	stdout    io.Writer
 	stderr    io.Writer
 	lookupEnv func(string) (string, bool)
+	version   string
 }
 
 // Execute runs the CLI and returns the process exit code.
@@ -59,13 +63,16 @@ func Execute(info BuildInfo) int {
 }
 
 func (a *app) run(info BuildInfo, args []string) int {
+	a.version = info.Version
 	root := a.newRootCmd(info)
 	root.SetArgs(args)
 	root.SetIn(a.stdin)
 	root.SetOut(a.stdout)
 	root.SetErr(a.stderr)
 
-	err := root.Execute()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	err := root.ExecuteContext(ctx)
 	if err == nil {
 		return ExitOK
 	}
@@ -77,7 +84,7 @@ func (a *app) run(info BuildInfo, args []string) int {
 		return ExitNoResult
 	}
 	fmt.Fprintf(a.stderr, "shelf: hata: %v\n", err)
-	if errors.Is(err, config.ErrInvalid) {
+	if errors.Is(err, config.ErrInvalid) || errors.Is(err, artifactory.ErrAuth) {
 		return ExitConfig
 	}
 	return ExitNoResult
@@ -122,7 +129,7 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 	pf.BoolP("help", "h", false, "yardımı göster")
 	root.Flags().BoolP("version", "v", false, "sürüm bilgisini göster")
 
-	root.AddCommand(a.newConfigCmd())
+	root.AddCommand(a.newConfigCmd(), a.newDebugCmd())
 	root.SetHelpCommand(newHelpCmd())
 	localize(root)
 	return root

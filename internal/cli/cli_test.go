@@ -3,6 +3,9 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -159,4 +162,76 @@ func TestConfigInitAbortOnEOF(t *testing.T) {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		t.Error("config written despite aborted input")
 	}
+}
+
+func fakeArtifactory(t *testing.T, status int, body string) (*httptest.Server, *[]string) {
+	t.Helper()
+	var queries []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/artifactory/api/system/ping" {
+			_, _ = io.WriteString(w, "OK")
+			return
+		}
+		b, _ := io.ReadAll(r.Body)
+		queries = append(queries, string(b))
+		w.WriteHeader(status)
+		_, _ = io.WriteString(w, body)
+	}))
+	t.Cleanup(srv.Close)
+	return srv, &queries
+}
+
+func TestDebugAQL(t *testing.T) {
+	srv, queries := fakeArtifactory(t, http.StatusOK, `{"results":[{"repo":"conan-local","path":"p","name":"conan_package.tgz"}],"range":{"total":1}}`)
+	env := map[string]string{config.EnvURL: srv.URL, config.EnvToken: "secret-tok"}
+
+	out := filepath.Join(t.TempDir(), "aql.json")
+	r := runCLI(t, env, "", "--config", writeEmptyConfig(t), "debug", "aql", "--limit", "2", "--out", out)
+	if r.code != ExitOK {
+		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
+	}
+	if len(*queries) != 1 || !strings.Contains((*queries)[0], `"name":"conan_package.tgz"`) || !strings.HasSuffix((*queries)[0], ".limit(2)") {
+		t.Errorf("queries = %v", *queries)
+	}
+	data, err := os.ReadFile(out)
+	if err != nil || !strings.Contains(string(data), "\n  \"results\"") {
+		t.Errorf("output not pretty JSON: %q, %v", data, err)
+	}
+	if strings.Contains(r.stderr+r.stdout+string(data), "secret-tok") {
+		t.Error("token leaked")
+	}
+}
+
+func TestDebugAuthErrorExitsWith2(t *testing.T) {
+	srv, _ := fakeArtifactory(t, http.StatusUnauthorized, `{"errors":[{"status":401,"message":"Bad credentials"}]}`)
+	env := map[string]string{config.EnvURL: srv.URL, config.EnvToken: "secret-tok"}
+	r := runCLI(t, env, "", "--config", writeEmptyConfig(t), "debug", "aql")
+	if r.code != ExitConfig || !strings.Contains(r.stderr, "401") || strings.Contains(r.stderr, "secret-tok") {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestDebugPing(t *testing.T) {
+	srv, _ := fakeArtifactory(t, http.StatusOK, `{"results":[]}`)
+	env := map[string]string{config.EnvURL: srv.URL, config.EnvRepos: "conan-local,other"}
+	r := runCLI(t, env, "", "--config", writeEmptyConfig(t), "debug", "ping")
+	if r.code != ExitOK || !strings.Contains(r.stdout, "Repo other: erişilebilir ama boş") {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func TestDebugRequiresURL(t *testing.T) {
+	r := runCLI(t, nil, "", "--config", writeEmptyConfig(t), "debug", "ping")
+	if r.code != ExitConfig || !strings.Contains(r.stderr, "url ayarlı değil") {
+		t.Fatalf("got %+v", r)
+	}
+}
+
+func writeEmptyConfig(t *testing.T) string {
+	t.Helper()
+	p := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(p, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return p
 }
