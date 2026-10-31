@@ -258,6 +258,12 @@ func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) 
 	for offset := 0; ; offset += c.pageSize {
 		q.Offset, q.Limit = offset, c.pageSize
 		res, err := c.AQL(ctx, q.String())
+		if err != nil && !q.NoSort && sortUnsupported(err) {
+			// shortcut: OSS paging relies on the server's default (id) order, which
+			// is stable in practice; mergeItems absorbs duplicates if it is not.
+			q.NoSort = true
+			res, err = c.AQL(ctx, q.String())
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -269,6 +275,13 @@ func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) 
 			return items, nil
 		}
 	}
+}
+
+// sortUnsupported reports the error Artifactory OSS returns for .sort().
+func sortUnsupported(err error) bool {
+	var he *HTTPError
+	return errors.As(err, &he) && he.Status == http.StatusBadRequest &&
+		strings.Contains(he.Body, "Sorting is not supported")
 }
 
 // mergeItems appends rows to items, folding a row into an existing item when

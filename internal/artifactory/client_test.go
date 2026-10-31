@@ -445,6 +445,29 @@ func TestItemsQueryString(t *testing.T) {
 	}
 }
 
+func TestSearchItemsRetriesWithoutSortOnOSS(t *testing.T) {
+	var queries []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		queries = append(queries, string(b))
+		if strings.Contains(string(b), "sort(") {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = io.WriteString(w, `{"errors":[{"status":400,"message":"Sorting is not supported by AQL in the open source version\n"}]}`)
+			return
+		}
+		_, _ = io.WriteString(w, sampleResponse)
+	}))
+	defer srv.Close()
+	c, _ := New(testConfig(srv.URL), WithPageSize(5))
+	items, err := c.SearchItems(context.Background(), ItemsQuery{Repos: []string{"conan-local"}})
+	if err != nil || len(items) != 1 {
+		t.Fatalf("items=%v err=%v", items, err)
+	}
+	if len(queries) != 2 || strings.Contains(queries[1], "sort(") {
+		t.Errorf("queries = %q", queries)
+	}
+}
+
 func TestSearchItemsStopsWhenOffsetIgnored(t *testing.T) {
 	requests := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {

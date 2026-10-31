@@ -60,7 +60,7 @@ func (a *app) newDebugPingCmd() *cobra.Command {
 			}
 			fmt.Fprintf(out, "Sunucu erişilebilir: %s\n", cfg.URL)
 			for _, repo := range cfg.Repos {
-				q := artifactory.ItemsQuery{Repos: []string{repo}, Include: []string{"repo", "path", "name"}, Limit: 1}
+				q := artifactory.ItemsQuery{Repos: []string{repo}, Include: []string{"repo", "path", "name"}, Limit: 1, NoSort: true}
 				res, err := c.AQL(cmd.Context(), q.String())
 				if err != nil {
 					return fmt.Errorf("repo %s: %w", repo, err)
@@ -96,7 +96,7 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 				return err
 			}
 			if query == "" {
-				q := artifactory.ItemsQuery{Repos: cfg.Repos, Limit: limit}
+				q := artifactory.ItemsQuery{Repos: cfg.Repos, Limit: limit, NoSort: true}
 				if name != "" {
 					q.Names = []string{name}
 				}
