@@ -19,7 +19,8 @@ type ItemsQuery struct {
 	Names   []string // OR-ed file names, e.g. "conan_package.tgz"; empty means any
 	Include []string // defaults to DefaultInclude
 	Offset  int
-	Limit   int // 0 means no limit clause
+	Limit   int  // 0 means no limit clause
+	NoSort  bool // omit .sort(); Artifactory OSS rejects it
 }
 
 // String renders the query in AQL syntax. Values are JSON-encoded so repo
@@ -55,8 +56,10 @@ func (q ItemsQuery) String() string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "items.find(%s).include(%s)", crit, strings.Trim(string(inc), "[]"))
 	if q.Limit > 0 {
-		// A stable order is required for offset paging to be meaningful.
-		b.WriteString(`.sort({"$asc":["repo","path","name"]})`)
+		if !q.NoSort {
+			// A stable order is required for offset paging to be meaningful.
+			b.WriteString(`.sort({"$asc":["repo","path","name"]})`)
+		}
 		if q.Offset > 0 {
 			fmt.Fprintf(&b, ".offset(%d)", q.Offset)
 		}
