@@ -444,3 +444,25 @@ func TestItemsQueryString(t *testing.T) {
 		t.Errorf("default include missing fields: %s", def)
 	}
 }
+
+func TestSearchItemsStopsWhenOffsetIgnored(t *testing.T) {
+	requests := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests++
+		// Always the same full page, whatever the offset.
+		page := Result{Results: []Item{
+			{Repo: "r", Path: "a", Name: "conan_package.tgz"},
+			{Repo: "r", Path: "b", Name: "conan_package.tgz"},
+		}}
+		_ = json.NewEncoder(w).Encode(page)
+	}))
+	defer srv.Close()
+	c, _ := New(testConfig(srv.URL), WithPageSize(2))
+	items, err := c.SearchItems(context.Background(), ItemsQuery{Repos: []string{"r"}})
+	if err != nil || len(items) != 2 {
+		t.Fatalf("items=%d err=%v", len(items), err)
+	}
+	if requests != 2 {
+		t.Errorf("requests = %d, want 2", requests)
+	}
+}
