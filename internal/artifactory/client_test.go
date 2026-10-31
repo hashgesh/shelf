@@ -427,6 +427,11 @@ func TestItemsQueryString(t *testing.T) {
 			`items.find({"repo":"a"}).include("name").sort({"$asc":["repo","path","name"]}).offset(10).limit(5)`,
 		},
 		{
+			"paging without sort",
+			ItemsQuery{Repos: []string{"a"}, Include: []string{"name"}, Offset: 10, Limit: 5, NoSort: true},
+			`items.find({"repo":"a"}).include("name").offset(10).limit(5)`,
+		},
+		{
 			"quotes are escaped",
 			ItemsQuery{Repos: []string{`evil"})`}, Include: []string{"name"}},
 			`items.find({"repo":"evil\"})"}).include("name")`,
@@ -458,12 +463,15 @@ func TestSearchItemsRetriesWithoutSortOnOSS(t *testing.T) {
 		_, _ = io.WriteString(w, sampleResponse)
 	}))
 	defer srv.Close()
-	c, _ := New(testConfig(srv.URL), WithPageSize(5))
+	// Page size 1 with a 1-item response forces a second page.
+	c, _ := New(testConfig(srv.URL), WithPageSize(1))
 	items, err := c.SearchItems(context.Background(), ItemsQuery{Repos: []string{"conan-local"}})
 	if err != nil || len(items) != 1 {
 		t.Fatalf("items=%v err=%v", items, err)
 	}
-	if len(queries) != 2 || strings.Contains(queries[1], "sort(") {
+	// Rejected sorted page, then page 1 and page 2 without sort.
+	if len(queries) != 3 || strings.Contains(queries[1], "sort(") || strings.Contains(queries[2], "sort(") ||
+		!strings.Contains(queries[2], ".offset(1)") {
 		t.Errorf("queries = %q", queries)
 	}
 }

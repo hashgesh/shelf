@@ -259,8 +259,10 @@ func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) 
 		q.Offset, q.Limit = offset, c.pageSize
 		res, err := c.AQL(ctx, q.String())
 		if err != nil && !q.NoSort && sortUnsupported(err) {
-			// shortcut: OSS paging relies on the server's default (id) order, which
-			// is stable in practice; mergeItems absorbs duplicates if it is not.
+			// shortcut: OSS paging relies on the server's default order staying the
+			// same between pages; mergeItems absorbs duplicates, but an item that
+			// shifts past a page boundary is silently missed. A single unpaged
+			// query is no fix: non-admin results are capped (userQueryLimit, 1000).
 			q.NoSort = true
 			res, err = c.AQL(ctx, q.String())
 		}
