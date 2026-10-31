@@ -22,12 +22,20 @@ jobs:
       - name: Build
         run: make release VERSION="${GITHUB_REF_NAME}"
       - name: Smoke test
-        run: ./dist/shelf-linux-amd64 --version | grep -F "${GITHUB_REF_NAME}"
+        run: |
+          cd dist
+          sha256sum -c SHA256SUMS
+          mkdir smoke
+          tar -xzf "shelf_${GITHUB_REF_NAME}_linux_amd64.tar.gz" -C smoke
+          test -x smoke/shelf   # executable bit survived packing
+          smoke/shelf --version | grep -F "${GITHUB_REF_NAME}"
+          unzip -l "shelf_${GITHUB_REF_NAME}_windows_amd64.zip" | grep -q 'shelf.exe'
+          rm -rf smoke
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" dist/* \
+          gh release create "${GITHUB_REF_NAME}" dist/*.tar.gz dist/*.zip dist/SHA256SUMS \
             --title "shelf ${GITHUB_REF_NAME}" \
             --generate-notes \
             --verify-tag

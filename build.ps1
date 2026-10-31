@@ -15,6 +15,12 @@ $ErrorActionPreference = 'Stop'
 $Binary = 'shelf'
 $Pkg    = './cmd/shelf'
 $Dist   = 'dist'
+$Stage  = 'build/release'
+$Targets = @(
+    @{ Os = 'linux';   Arch = 'amd64' },
+    @{ Os = 'linux';   Arch = 'arm64' },
+    @{ Os = 'windows'; Arch = 'amd64' }
+)
 
 $Version = (git describe --tags --always --dirty 2>$null)
 if (-not $Version) { $Version = 'dev' }
@@ -41,7 +47,7 @@ function Build-Target([string]$Os, [string]$Arch, [string]$Out) {
 }
 
 function Clean {
-    Remove-Item -Recurse -Force bin, $Dist -ErrorAction SilentlyContinue
+    Remove-Item -Recurse -Force bin, build, $Dist -ErrorAction SilentlyContinue
 }
 
 switch ($Target) {
@@ -56,13 +62,14 @@ switch ($Target) {
         Invoke-Checked { golangci-lint run ./... }
     }
     'release' {
+        # Same layout as the Makefile; tools/pack writes the archives so the
+        # Linux binary keeps mode 0755 even when packed on Windows.
         Clean
-        Build-Target 'windows' 'amd64' "$Dist/$Binary-windows-amd64.exe"
-        Build-Target 'linux'   'amd64' "$Dist/$Binary-linux-amd64"
-        Build-Target 'linux'   'arm64' "$Dist/$Binary-linux-arm64"
-        Get-ChildItem $Dist -File | Get-FileHash -Algorithm SHA256 |
-            ForEach-Object { "{0}  {1}" -f $_.Hash.ToLower(), (Split-Path $_.Path -Leaf) } |
-            Set-Content -Encoding ascii "$Dist/SHA256SUMS"
+        foreach ($t in $Targets) {
+            $ext = if ($t.Os -eq 'windows') { '.exe' } else { '' }
+            Build-Target $t.Os $t.Arch "$Stage/$($t.Os)_$($t.Arch)/$Binary$ext"
+        }
+        Invoke-Checked { go run ./tools/pack -name $Binary -version $Version -in $Stage -out $Dist }
     }
     'clean' { Clean }
     'all' {

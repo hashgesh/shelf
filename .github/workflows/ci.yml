@@ -59,3 +59,8 @@ jobs:
           ./build.ps1 build
           ./bin/shelf.exe --version
           ./bin/shelf.exe --fixture testdata/aql.json list
+      - name: Release archives
+        shell: pwsh
+        run: |
+          ./build.ps1 release
+          Get-ChildItem dist
