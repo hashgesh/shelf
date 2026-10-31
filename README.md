@@ -25,17 +25,30 @@ erişimi gerektirmez.
 
 ## Kurulum
 
-[Releases](../../releases) sayfasından platformunuza uygun dosyayı indirin:
+[Releases](../../releases) sayfasından platformunuza uygun arşivi indirin
+(`<sürüm>` yerine ör. `v0.1.0`):
 
-| Platform | Dosya |
+| Platform | Arşiv |
 | --- | --- |
-| Windows x64 | `shelf-windows-amd64.exe` |
-| Linux x64 | `shelf-linux-amd64` |
-| Linux ARM64 | `shelf-linux-arm64` |
+| Windows x64 | `shelf_<sürüm>_windows_amd64.zip` |
+| Linux x64 | `shelf_<sürüm>_linux_amd64.tar.gz` |
+| Linux ARM64 | `shelf_<sürüm>_linux_arm64.tar.gz` |
 
-Dosyayı `shelf` (Windows'ta `shelf.exe`) olarak yeniden adlandırıp `PATH` üzerindeki
-bir klasöre koyun. Linux'ta çalıştırma izni verin: `chmod +x shelf`.
-Bütünlük kontrolü için `SHA256SUMS` dosyasını kullanabilirsiniz.
+Her arşivde binary (`shelf` / `shelf.exe`), `README.md` ve `LICENSE` bulunur.
+
+Linux:
+
+```sh
+sha256sum -c SHA256SUMS --ignore-missing     # isteğe bağlı bütünlük kontrolü
+tar -xzf shelf_v0.1.0_linux_amd64.tar.gz
+sudo install shelf /usr/local/bin/           # veya ~/.local/bin
+```
+
+Windows: zip'i açıp `shelf.exe` dosyasını `PATH` üzerindeki bir klasöre koyun.
+Bütünlük kontrolü için PowerShell'de `Get-FileHash shelf_v0.1.0_windows_amd64.zip`
+çıktısını `SHA256SUMS` ile karşılaştırabilirsiniz.
+
+Go veya başka bir çalışma zamanı gerekmez; binary'ler statiktir.
 
 Kapalı ağda dosyayı başka bir makineden kopyalamanız yeterlidir; shelf hiçbir
 harici bağımlılık indirmez.
@@ -289,7 +302,7 @@ Gereksinim: Go 1.24+. CGO kullanılmaz.
 make build      # bin/shelf
 make test
 make lint       # golangci-lint v2 gerekir
-make release    # dist/ altına windows/amd64, linux/amd64, linux/arm64 + SHA256SUMS
+make release    # dist/ altına linux .tar.gz, windows .zip arşivleri + SHA256SUMS
 ```
 
 Windows'ta aynı hedefler `build.ps1` ile çalışır: `.\build.ps1 build|test|lint|release`.
@@ -320,7 +333,9 @@ testdata             örnek AQL yanıtı, profiller, conaninfo dosyaları
 ```
 
 Sürüm yayınlamak için bir `v*` etiketi gönderin (ör. `git tag v0.1.0 && git push origin v0.1.0`);
-GitHub Actions binary'leri derleyip release'e ekler. Sürüm bilgisi `-ldflags` ile
+GitHub Actions binary'leri derleyip arşivler (`tools/pack`) ve release'e ekler.
+Arşivleri hem `make release` hem `build.ps1 release` aynı araçla üretir; Linux
+binary'si Windows'ta paketlense bile çalıştırma iznini korur. Sürüm bilgisi `-ldflags` ile
 gömülür ve `shelf --version` ile görülür.
 
 ## Lisans
