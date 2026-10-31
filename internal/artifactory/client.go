@@ -261,8 +261,11 @@ func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) 
 		if err != nil {
 			return nil, err
 		}
+		before := len(items)
 		items = mergeItems(items, res.Results)
-		if len(res.Results) < c.pageSize {
+		// Stop on a short page, or when a full page brought nothing new: a
+		// server (or proxy) that ignores offset would otherwise loop forever.
+		if len(res.Results) < c.pageSize || len(items) == before {
 			return items, nil
 		}
 	}
