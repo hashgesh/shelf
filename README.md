@@ -332,6 +332,18 @@ internal/clipboard   pano (Win32 API, xclip/xsel/wl-copy, OSC 52)
 testdata             örnek AQL yanıtı, profiller, conaninfo dosyaları
 ```
 
+Değişiklik geçmişi [CHANGELOG.md](CHANGELOG.md) dosyasındadır ve commit mesajlarından
+[git-cliff](https://git-cliff.org) ile üretilir (`cliff.toml`). Yeni sürümden önce:
+
+```sh
+git cliff --tag v0.2.0 -o CHANGELOG.md     # yeni sürümün bölümünü ekler
+git commit -am "docs: changelog for v0.2.0"
+```
+
+Release açıklaması da aynı yapılandırmayla, etiketin bölümünden otomatik üretilir.
+Var olan bir release'in açıklamasını yeniden üretmek için Actions sekmesinden
+`release-notes` iş akışını etiket adıyla çalıştırın.
+
 Sürüm yayınlamak için bir `v*` etiketi gönderin (ör. `git tag v0.1.0 && git push origin v0.1.0`);
 GitHub Actions binary'leri derleyip arşivler (`tools/pack`) ve release'e ekler.
 Arşivleri hem `make release` hem `build.ps1 release` aynı araçla üretir; Linux

@@ -1,0 +1,47 @@
+name: release-notes
+
+# Regenerates the notes of an existing release from cliff.toml, e.g. after
+# fixing a commit message or the changelog configuration. Assets are untouched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to update (e.g. v0.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # git-cliff needs the full history and all tags
+      - name: Select the commit range of the tag
+        id: range
+        run: |
+          git rev-parse --verify --quiet "refs/tags/${TAG}" >/dev/null || { echo "tag ${TAG} not found"; exit 1; }
+          prev=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
+          if [ -z "$prev" ]; then
+            # First release: start at the root commit (git-cliff needs a..b).
+            prev=$(git rev-list --max-parents=0 "${TAG}" | tail -n1)
+          fi
+          echo "range=${prev}..${TAG}" >> "$GITHUB_OUTPUT"
+      - name: Generate release notes with git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --strip header ${{ steps.range.outputs.range }}
+        env:
+          OUTPUT: RELEASE_NOTES.md
+      - name: Update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat RELEASE_NOTES.md
+          gh release edit "${TAG}" --notes-file RELEASE_NOTES.md
