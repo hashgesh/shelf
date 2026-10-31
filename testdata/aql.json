@@ -1,0 +1,1425 @@
+{
+  "results": [
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/3d535bd4744220558d9c91a1f965a0ec/package/3fa938fb03e40972c3a7e4b329901ca5866759b6/2ca8725bc66d2bc455d251b1e31e3598",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 4649272,
+      "created": "2026-01-02T09:07:13.037+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-02T09:07:13.037+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/3d535bd4744220558d9c91a1f965a0ec/package/0b31ef9283e2f702cc53abb9db8085c287e97635/0022cb9f2011e67aabda81ea6e3117cf",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 4742748,
+      "created": "2026-01-03T10:14:13.074+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-03T10:14:13.074+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/3fa938fb03e40972c3a7e4b329901ca5866759b6/248d88fee24b82aaf6c20155850561fc",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 1074939,
+      "created": "2026-01-04T11:21:13.111+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-04T11:21:13.111+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/3fa938fb03e40972c3a7e4b329901ca5866759b6/9755d121befad4de1f805a20a42cf64c",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 6143036,
+      "created": "2026-01-05T12:28:13.148+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-05T12:28:13.148+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/0b31ef9283e2f702cc53abb9db8085c287e97635/1adf23278b011507d644a47338881ca3",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 7713908,
+      "created": "2026-01-06T13:35:13.185+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-06T13:35:13.185+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/b9f2d24f83c08eb7ff578149d64e0fe1661486f8/1fda187e33fd89098d682779318ce76f",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 502646,
+      "created": "2026-01-07T14:42:13.222+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-07T14:42:13.222+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "True"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/28dcf80d80e5ebeac5b0d8f2f5ded5f8d6e9892b/671c5c5dbc651d32c1d16ce2f92d53ee",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 3423648,
+      "created": "2026-01-08T15:49:13.259+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-08T15:49:13.259+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "True"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/bcfa5dff3a2c4789068ad6011ecf98fa7d03007c/40dea7455660f2aeb5d2363a05a8d2ae",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 1276821,
+      "created": "2026-01-09T16:56:13.296+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-09T16:56:13.296+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/23b29b606f78bdb084e1202ed9ca6ac20dc6ebd8/717490392aa4b96b250fe5141bbec08c",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 3494038,
+      "created": "2026-01-10T17:03:13.333+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-10T17:03:13.333+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/8b804048c8823818f48d50e6b2a1e735b934727e/f165b1007f183ea87b4515e4b3ddf276",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 7716810,
+      "created": "2026-01-11T08:10:13.370+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-11T08:10:13.370+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "True"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/428b1adc1297d6f927e3d182189bac8ac12387f6/c890a96b1839a67ea9383ced9008e300",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 7283077,
+      "created": "2026-01-12T09:17:13.407+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-12T09:17:13.407+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "True"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.3.1/_/cc2ab94180a95d278fffbe369c7cd955/package/de0b52330565d077012567c78194d06a593c0965/0c5d45e2b5f8c3039fe471b4e561ee41",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 5295789,
+      "created": "2026-01-13T10:24:13.444+03:00",
+      "created_by": "arm-runner",
+      "modified": "2026-01-13T10:24:13.444+03:00",
+      "modified_by": "arm-runner",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.3.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "armv8"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.2.13/_/a9d2a68c9d41a0a9af142fafba853fd6/package/c11a5d64f25c256034eb164bf56e2d7692e993f3/7773792a0e11d589145a019566feee04",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 6658567,
+      "created": "2026-01-14T11:31:13.481+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-14T11:31:13.481+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.2.13"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/zlib/1.2.13/_/a9d2a68c9d41a0a9af142fafba853fd6/package/97233fae922e73fb8644d12a541fc63acc6f011e/fdb1a2b9e19a6373554e8200563197e4",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 1384953,
+      "created": "2026-01-15T12:38:13.518+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-15T12:38:13.518+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "zlib"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "1.2.13"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/openssl/3.2.1/_/8c2e9961fb8ac3ea0c371da8e0c4e538/package/8e3b3c1eae008e625e4a9263c4d18e41436bd724/7b872e2fccae23088cf711a9b548853b",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 5023813,
+      "created": "2026-01-16T13:45:13.555+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-16T13:45:13.555+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "openssl"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "3.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/openssl/3.2.1/_/8c2e9961fb8ac3ea0c371da8e0c4e538/package/2eab0773341f2096bf8d8bc3a847733e18115302/20be5344e2ac0cb8eb0bb3e2052b616e",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 2115389,
+      "created": "2026-01-17T14:52:13.592+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-17T14:52:13.592+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "openssl"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "3.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "True"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/openssl/3.2.1/_/8c2e9961fb8ac3ea0c371da8e0c4e538/package/7be4e271f4641df449ae5c251bff386a0f539793/362b048e5e73a8ba903f231048b9462a",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 3071503,
+      "created": "2026-01-18T15:59:13.629+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-18T15:59:13.629+03:00",
+      "modified_by": "ci-builder",
+      "properties": []
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/openssl/3.2.1/_/8c2e9961fb8ac3ea0c371da8e0c4e538/package/0bb637a62c2672b8b1aaf71331483b831dff16c9/042d8e05e37d37072ba45231e05baf71",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 7909825,
+      "created": "2026-01-19T16:06:13.666+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-19T16:06:13.666+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "openssl"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "3.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/10.2.1/stable/9bc732aea596971aa8142a53fa5b34a2/package/7aa7d05a2453df9f57839f370f6a135eb04efe0b/55e333ae596fd6b2f5a836f55748ad46",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 1209113,
+      "created": "2026-01-20T17:13:13.703+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-20T17:13:13.703+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "10.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.libcxx",
+          "value": "libstdc++11"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/10.2.1/stable/9bc732aea596971aa8142a53fa5b34a2/package/91ca4f1169198915ed7675c22325c49c9b4251da/df3fe243d506d6a4de208e2a82395af4",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 3184237,
+      "created": "2026-01-21T08:20:13.740+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-21T08:20:13.740+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "10.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/10.2.1/stable/9bc732aea596971aa8142a53fa5b34a2/package/374a8ff9490565cbdcfacbc1d34e1a598d9fca3f/7e69490ae8eeb0b1f69511c7de3aaf7e",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 599780,
+      "created": "2026-01-22T09:27:13.777+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-22T09:27:13.777+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "10.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.libcxx",
+          "value": "libstdc++11"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/10.2.1/stable/9bc732aea596971aa8142a53fa5b34a2/package/c48e5fd97a68cde53be6224b0e2c2c26a7cbe68b/a2a7df18aaaa5d520a6697d3f17d06ab",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 7638682,
+      "created": "2026-01-23T10:34:13.814+03:00",
+      "created_by": "ayse.yilmaz",
+      "modified": "2026-01-23T10:34:13.814+03:00",
+      "modified_by": "ayse.yilmaz",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "10.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "msvc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.runtime",
+          "value": "dynamic"
+        },
+        {
+          "key": "conan.settings.compiler.runtime_type",
+          "value": "Debug"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "194"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Windows"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/10.2.1/stable/9bc732aea596971aa8142a53fa5b34a2/package/9a00b0fbd10b02a669add033848feb1929cc8820/81a4b1b1cffe9e6ff337167b08a6df7d",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 1341948,
+      "created": "2026-01-24T11:41:13.851+03:00",
+      "created_by": "arm-runner",
+      "modified": "2026-01-24T11:41:13.851+03:00",
+      "modified_by": "arm-runner",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "10.2.1"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "armv8"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.libcxx",
+          "value": "libstdc++11"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "mycompany/fmt/11.0.2/stable/b0f97723409bf27e8ca83d520f7d6b4c/package/78af888e3bca99b506277ea3e19e9e2af7694160/61fbc6b3bb2a98a32fb3cba7ac207efe",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 893315,
+      "created": "2026-01-25T12:48:13.888+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-25T12:48:13.888+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "fmt"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "11.0.2"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "mycompany"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "stable"
+        },
+        {
+          "key": "conan.settings.arch",
+          "value": "x86_64"
+        },
+        {
+          "key": "conan.settings.build_type",
+          "value": "Release"
+        },
+        {
+          "key": "conan.settings.compiler",
+          "value": "gcc"
+        },
+        {
+          "key": "conan.settings.compiler.cppstd",
+          "value": "17"
+        },
+        {
+          "key": "conan.settings.compiler.libcxx",
+          "value": "libstdc++11"
+        },
+        {
+          "key": "conan.settings.compiler.version",
+          "value": "12"
+        },
+        {
+          "key": "conan.settings.os",
+          "value": "Linux"
+        },
+        {
+          "key": "conan.options.fPIC",
+          "value": "True"
+        },
+        {
+          "key": "conan.options.shared",
+          "value": "False"
+        }
+      ]
+    },
+    {
+      "repo": "conan-local",
+      "path": "_/nlohmann_json/3.11.3/_/a926b8fedb9334626a67a094233e47fe/package/e081cbfb9d420582197d22df13c93b2df36479a4/81793916db2734a3f2c0e2afafbbfe57",
+      "name": "conan_package.tgz",
+      "type": "file",
+      "size": 3465504,
+      "created": "2026-01-26T13:55:13.925+03:00",
+      "created_by": "ci-builder",
+      "modified": "2026-01-26T13:55:13.925+03:00",
+      "modified_by": "ci-builder",
+      "properties": [
+        {
+          "key": "conan.package.name",
+          "value": "nlohmann_json"
+        },
+        {
+          "key": "conan.package.version",
+          "value": "3.11.3"
+        },
+        {
+          "key": "conan.package.user",
+          "value": "_"
+        },
+        {
+          "key": "conan.package.channel",
+          "value": "_"
+        }
+      ]
+    }
+  ],
+  "range": {
+    "start_pos": 0,
+    "end_pos": 25,
+    "total": 25
+  }
+}
