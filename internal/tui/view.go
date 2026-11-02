@@ -20,7 +20,7 @@ func (m model) View() string {
 	var body string
 	switch {
 	case m.result == nil && m.loading:
-		body = m.center(m.spin.View()+" Artifactory'den veriler alınıyor...", bodyH)
+		body = m.center(m.st.loading.Render(strings.TrimSpace(m.spin.View())+" Artifactory'den veriler alınıyor..."), bodyH)
 	case m.result == nil && m.err != nil:
 		body = m.center(m.st.errText.Render("Hata: ")+m.err.Error()+"\n\n"+
 			m.st.dim.Render("R ile tekrar dene, q ile çık"), bodyH)
@@ -51,10 +51,14 @@ func (m model) topBar() string {
 	left := " " + strings.Join(parts, m.st.dot())
 	right := ""
 	if m.loading && m.result != nil {
-		right = m.spin.View() + " yenileniyor "
+		// Styled on its own: nesting it inside the bar's style would let the
+		// inner reset sequence strip the bar style from the rest of the text.
+		right = m.st.busy.Render(" " + strings.TrimSpace(m.spin.View()) + " yenileniyor ")
 	}
-	gap := max(m.width-lipgloss.Width(left)-lipgloss.Width(right), 0)
-	return m.st.topBar.Render(left + strings.Repeat(" ", gap) + right)
+	avail := max(m.width-lipgloss.Width(right), 0)
+	left = lipgloss.NewStyle().MaxWidth(avail).Render(left)
+	gap := max(avail-lipgloss.Width(left), 0)
+	return m.st.topBar.Render(left+strings.Repeat(" ", gap)) + right
 }
 
 // hints returns the key hints for the current mode.

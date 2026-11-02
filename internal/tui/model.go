@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/halilibrahimonus/shelf/internal/conan"
 )
@@ -92,7 +93,10 @@ func newModel(load Loader, repoLabel string, st styles) model {
 	if st.ascii {
 		sp.Spinner = spinner.Line
 	}
-	sp.Style = st.title
+	// The spinner is left unstyled: its own reset sequence would otherwise
+	// cut through the style of the bar it is drawn into. Callers style the
+	// frame together with the text around it.
+	sp.Style = lipgloss.NewStyle()
 
 	in := textinput.New()
 	in.Prompt = "/"

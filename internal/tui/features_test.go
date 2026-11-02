@@ -2,11 +2,14 @@ package tui
 
 import (
 	"errors"
+	"io"
 	"strings"
 	"testing"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 
 	"github.com/halilibrahimonus/shelf/internal/conan"
 )
@@ -321,5 +324,35 @@ func TestDetailMoreIndicator(t *testing.T) {
 	m = press(t, m, "G")
 	if v := m.View(); strings.Contains(v, "satır daha") || !strings.Contains(v, "conan install --requires") {
 		t.Errorf("bottom of detail:\n%s", v)
+	}
+}
+
+func TestRefreshIndicatorKeepsItsStyle(t *testing.T) {
+	r := lipgloss.NewRenderer(io.Discard)
+	r.SetColorProfile(termenv.ANSI)
+	m := newModel(nil, "conan-local", newStyles(r, false))
+	m = update(t, m, tea.WindowSizeMsg{Width: 80, Height: 20})
+	m = update(t, m, loadedMsg{res: fixtureResult(t)})
+	m.loading = true
+	bar := m.topBar()
+
+	// No reset between the indicator's style and its text: the old bar
+	// rendered "yenileniyor" unstyled right after the spinner's reset.
+	i := strings.Index(bar, "yenileniyor")
+	if i < 0 {
+		t.Fatalf("indicator missing: %q", bar)
+	}
+	before := bar[:i]
+	if last := strings.LastIndex(before, "\x1b["); last >= 0 && strings.HasPrefix(before[last:], "\x1b[0m") {
+		t.Errorf("indicator text follows a reset, so it is unstyled: %q", bar)
+	}
+	if w := lipgloss.Width(bar); w != 80 {
+		t.Errorf("top bar width = %d, want 80", w)
+	}
+
+	// Narrow terminals keep the indicator and cut the left side instead.
+	m = update(t, m, tea.WindowSizeMsg{Width: 30, Height: 20})
+	if bar := m.topBar(); !strings.Contains(bar, "yenileniyor") || lipgloss.Width(bar) != 30 {
+		t.Errorf("narrow bar = %q (width %d)", bar, lipgloss.Width(bar))
 	}
 }

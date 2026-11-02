@@ -11,6 +11,8 @@ type styles struct {
 	ascii bool
 
 	topBar    lipgloss.Style
+	busy      lipgloss.Style // refresh indicator in the top bar
+	loading   lipgloss.Style // first-load message
 	bottomBar lipgloss.Style
 	title     lipgloss.Style
 	header    lipgloss.Style
@@ -44,6 +46,10 @@ func newStyles(r *lipgloss.Renderer, ascii bool) styles {
 
 	s := styles{ascii: ascii}
 	s.topBar = r.NewStyle().Bold(true).Reverse(true)
+	// Black on bright blue stands out from the reversed bar in light and dark
+	// themes; without color it falls back to bold.
+	s.busy = r.NewStyle().Bold(true).Foreground(lipgloss.Color("0")).Background(accent)
+	s.loading = r.NewStyle().Bold(true).Foreground(accent)
 	s.bottomBar = r.NewStyle()
 	s.title = r.NewStyle().Bold(true).Foreground(accent)
 	s.header = r.NewStyle().Bold(true).Underline(true)
