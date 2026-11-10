@@ -52,6 +52,7 @@ filter_unconventional = false
 commit_parsers = [
     { message = "^Merge (branch|pull request)", skip = true },
     { message = "^Initial commit", skip = true },
+    { message = "^chore\\(release\\)", skip = true },
     { message = "^feat", group = "<!-- 0 -->Added" },
     { message = "^fix", group = "<!-- 1 -->Fixed" },
     { message = "^docs", group = "<!-- 2 -->Documentation" },
