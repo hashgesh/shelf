@@ -192,7 +192,7 @@ func TestBuildCatalogFromFixture(t *testing.T) {
 		t.Fatalf("binaries without metadata = %d, want 2 (openssl Debug, nlohmann_json)", len(missing))
 	}
 	for _, b := range missing {
-		if b.Summary() != "bilinmiyor" {
+		if b.Summary() != "unknown" {
 			t.Errorf("%s summary = %q", b, b.Summary())
 		}
 	}
@@ -224,7 +224,7 @@ func TestConaninfoFallbackFromFixture(t *testing.T) {
 		t.Error("no binary filled from conaninfo")
 	}
 	hdr := cat.Find("nlohmann_json").Binaries()[0]
-	if hdr.HasSettings() || hdr.Summary() != "ayarsız (header-only)" || hdr.Label() != hdr.Summary() {
+	if hdr.HasSettings() || hdr.Summary() != "no settings (header-only)" || hdr.Label() != hdr.Summary() {
 		t.Errorf("header-only binary = %+v summary=%q", hdr, hdr.Summary())
 	}
 }
@@ -329,7 +329,7 @@ func TestLoadProfilesIncludesAndEdgeCases(t *testing.T) {
 	}
 	var sawLoop, sawJinja bool
 	for _, w := range warns {
-		sawLoop = sawLoop || strings.Contains(w.Message, "döngüsel")
+		sawLoop = sawLoop || strings.Contains(w.Message, "include cycle")
 		sawJinja = sawJinja || strings.Contains(w.Message, "Jinja")
 	}
 	if !sawLoop || !sawJinja {
@@ -470,8 +470,8 @@ func TestParseRefSpecAndResolve(t *testing.T) {
 		{"fmt", "fmt/11.0.2@mycompany/stable", ""},
 		{"fmt/10.2.1@mycompany/stable", "fmt/10.2.1@mycompany/stable", ""},
 		{"zlib/1.3.1@_/_", "zlib/1.3.1", ""},
-		{"zlib/9.9", "", "sürüm bulunamadı"},
-		{"nope", "", "paket bulunamadı"},
+		{"zlib/9.9", "", "version not found"},
+		{"nope", "", "package not found"},
 	}
 	for _, tt := range tests {
 		spec, err := ParseRefSpec(tt.in)

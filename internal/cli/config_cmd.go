@@ -10,12 +10,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 func (a *app) newConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
-		Short: "Yapılandırmayı oluştur veya görüntüle",
+		Short: i18n.T("Create or show the configuration"),
 		Args:  noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
@@ -24,13 +25,13 @@ func (a *app) newConfigCmd() *cobra.Command {
 	cmd.AddCommand(
 		&cobra.Command{
 			Use:   "init",
-			Short: "Etkileşimli olarak config dosyası oluştur",
+			Short: i18n.T("Create a config file interactively"),
 			Args:  noArgs,
 			RunE:  a.runConfigInit,
 		},
 		&cobra.Command{
-			Use:   "show [bayraklar]",
-			Short: "Etkin yapılandırmayı ve değerlerin kaynağını göster (gizli bilgiler maskelenir)",
+			Use:   i18n.T("show [flags]"),
+			Short: i18n.T("Show the effective configuration and where each value comes from (secrets are masked)"),
 			Args:  noArgs,
 			RunE:  a.runConfigShow,
 		},
@@ -55,9 +56,9 @@ func displayValue(c *config.Config, key string) string {
 		return c.ProfilesDir
 	case config.KeyInsecureTLS:
 		if c.InsecureTLS {
-			return "evet"
+			return i18n.T("yes")
 		}
-		return "hayır"
+		return i18n.T("no")
 	case config.KeyTimeout:
 		return c.Timeout.String()
 	case config.KeyAuth:
@@ -70,7 +71,7 @@ func displayValue(c *config.Config, key string) string {
 
 func secretState(s config.Secret) string {
 	if s.IsSet() {
-		return s.String() + " (ayarlı)"
+		return s.String() + i18n.T(" (set)")
 	}
 	return ""
 }
@@ -125,24 +126,24 @@ func (a *app) runConfigShow(cmd *cobra.Command, _ []string) error {
 		return enc.Encode(v)
 	}
 
-	state := "bulundu"
+	state := i18n.T("found")
 	if !c.FileFound {
-		state = "bulunamadı"
+		state = i18n.T("not found")
 	}
-	fmt.Fprintf(out, "Config dosyası: %s (%s)\n\n", c.Path, state)
+	fmt.Fprintf(out, i18n.T("Config file: %s (%s)\n\n"), c.Path, state)
 	tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(tw, "ANAHTAR\tDEĞER\tKAYNAK")
+	fmt.Fprintln(tw, i18n.T("KEY\tVALUE\tSOURCE"))
 	for _, k := range config.Keys {
-		fmt.Fprintf(tw, "%s\t%s\t%s\n", k, displayValue(c, k), c.Sources[k])
+		fmt.Fprintf(tw, "%s\t%s\t%s\n", k, displayValue(c, k), i18n.T(string(c.Sources[k])))
 	}
 	if err := tw.Flush(); err != nil {
 		return err
 	}
 	fmt.Fprintln(out)
 	if verr != nil {
-		fmt.Fprintf(out, "Durum: eksik veya hatalı: %s\n", strings.TrimPrefix(verr.Error(), config.ErrInvalid.Error()+": "))
+		fmt.Fprintf(out, i18n.T("Status: missing or invalid: %s\n"), strings.TrimPrefix(verr.Error(), config.ErrInvalid.Error()+": "))
 	} else {
-		fmt.Fprintln(out, "Durum: geçerli")
+		fmt.Fprintln(out, i18n.T("Status: valid"))
 	}
 	return nil
 }
@@ -168,16 +169,16 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 
 	p := newPrompter(cmd.InOrStdin(), cmd.OutOrStdout())
 	out := cmd.OutOrStdout()
-	fmt.Fprintln(out, "shelf yapılandırması")
-	fmt.Fprintf(out, "Dosya: %s\n", path)
+	fmt.Fprintln(out, i18n.T("shelf configuration"))
+	fmt.Fprintf(out, i18n.T("File: %s\n"), path)
 	if cur.FileFound {
-		fmt.Fprintln(out, "Mevcut değerler köşeli parantez içinde gösterilir; Enter ile koruyun.")
+		fmt.Fprintln(out, i18n.T("Current values are shown in brackets; press Enter to keep them."))
 	}
 	fmt.Fprintln(out)
 
 	next := *cur
 	for {
-		v, err := p.ask("Artifactory URL'si (örnek: https://artifactory.example/artifactory)", cur.URL)
+		v, err := p.ask(i18n.T("Artifactory URL (e.g. https://artifactory.example/artifactory)"), cur.URL)
 		if err != nil {
 			return err
 		}
@@ -185,10 +186,10 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 			next.URL = strings.TrimRight(v, "/")
 			break
 		}
-		fmt.Fprintln(out, "  Geçerli bir http:// veya https:// adresi girin.")
+		fmt.Fprintln(out, i18n.T("  Enter a valid http:// or https:// address."))
 	}
 
-	if next.User, err = p.ask("Kullanıcı adı (anonim erişim için boş bırakın)", cur.User); err != nil {
+	if next.User, err = p.ask(i18n.T("User name (leave empty for anonymous access)"), cur.User); err != nil {
 		return err
 	}
 
@@ -197,7 +198,7 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		method = "password"
 	}
 	for {
-		v, err := p.ask("Kimlik doğrulama yöntemi: token veya password", method)
+		v, err := p.ask(i18n.T("Authentication method: token or password"), method)
 		if err != nil {
 			return err
 		}
@@ -206,7 +207,7 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 			method = v
 			break
 		}
-		fmt.Fprintln(out, "  \"token\" veya \"password\" yazın.")
+		fmt.Fprintln(out, i18n.T("  Type \"token\" or \"password\"."))
 	}
 
 	if method == "token" {
@@ -221,9 +222,9 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		next.Auth = config.AuthAuto
 	} else {
 		if next.User == "" {
-			return fmt.Errorf("%w: şifre ile giriş için kullanıcı adı gerekli", config.ErrInvalid)
+			return fmt.Errorf(i18n.T("%w: password login requires a user name"), config.ErrInvalid)
 		}
-		s, err := p.askSecret("Şifre", cur.Password.IsSet())
+		s, err := p.askSecret(i18n.T("Password"), cur.Password.IsSet())
 		if err != nil {
 			return err
 		}
@@ -234,7 +235,7 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		next.Auth = config.AuthBasic
 	}
 
-	repos, err := p.ask("Repo(lar), virgülle ayrılmış", strings.Join(cur.Repos, ","))
+	repos, err := p.ask(i18n.T("Repo(s), comma-separated"), strings.Join(cur.Repos, ","))
 	if err != nil {
 		return err
 	}
@@ -251,17 +252,17 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 	if cur.Sources[config.KeyProfilesDir] == config.SourceDefault {
 		profilesDefault = config.DefaultProfilesDir(a.lookupEnv)
 	}
-	if next.ProfilesDir, err = p.ask("Conan profil klasörü", profilesDefault); err != nil {
+	if next.ProfilesDir, err = p.ask(i18n.T("Conan profiles folder"), profilesDefault); err != nil {
 		return err
 	}
 	if next.ProfilesDir == config.DefaultProfilesDir(a.lookupEnv) {
 		next.ProfilesDir = ""
 	}
-	if next.InsecureTLS, err = p.confirm("TLS sertifika doğrulaması kapatılsın mı (self-signed sertifika)?", cur.InsecureTLS); err != nil {
+	if next.InsecureTLS, err = p.confirm(i18n.T("Disable TLS certificate verification (self-signed certificate)?"), cur.InsecureTLS); err != nil {
 		return err
 	}
 	for {
-		v, err := p.ask("İstek zaman aşımı", cur.Timeout.String())
+		v, err := p.ask(i18n.T("Request timeout"), cur.Timeout.String())
 		if err != nil {
 			return err
 		}
@@ -270,23 +271,23 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 			next.Timeout = d
 			break
 		}
-		fmt.Fprintln(out, "  Örnek: 30s, 2m veya saniye cinsinden sayı.")
+		fmt.Fprintln(out, i18n.T("  For example: 30s, 2m or a number of seconds."))
 	}
 
 	if err := next.Validate(); err != nil {
 		return err
 	}
-	ok, err := p.confirm(fmt.Sprintf("%s dosyasına kaydedilsin mi?", path), true)
+	ok, err := p.confirm(fmt.Sprintf(i18n.T("Save to %s?"), path), true)
 	if err != nil {
 		return err
 	}
 	if !ok {
-		fmt.Fprintln(out, "İptal edildi, hiçbir şey kaydedilmedi.")
+		fmt.Fprintln(out, i18n.T("Canceled, nothing was saved."))
 		return nil
 	}
 	if err := config.Save(path, &next); err != nil {
 		return err
 	}
-	fmt.Fprintf(out, "Kaydedildi: %s\n", path)
+	fmt.Fprintf(out, i18n.T("Saved: %s\n"), path)
 	return nil
 }

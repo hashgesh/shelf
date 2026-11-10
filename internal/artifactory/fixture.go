@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Fixture serves a saved AQL response instead of a live server. Files for
@@ -22,11 +24,11 @@ type Fixture struct {
 func LoadFixture(path string) (*Fixture, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("fixture okunamadı: %w", err)
+		return nil, fmt.Errorf(i18n.T("cannot read fixture: %w"), err)
 	}
 	var res Result
 	if err := json.Unmarshal(data, &res); err != nil {
-		return nil, fmt.Errorf("fixture çözümlenemedi: %s: %w", path, err)
+		return nil, fmt.Errorf(i18n.T("cannot decode fixture: %s: %w"), path, err)
 	}
 	return &Fixture{items: res.Results, filesDir: filepath.Join(filepath.Dir(path), "files")}, nil
 }
@@ -57,7 +59,7 @@ func (f *Fixture) SearchItems(_ context.Context, q ItemsQuery) ([]Item, error) {
 func (f *Fixture) Download(_ context.Context, repo, path string) ([]byte, error) {
 	rel := filepath.FromSlash(repo + "/" + strings.TrimLeft(path, "/"))
 	if !filepath.IsLocal(rel) {
-		return nil, fmt.Errorf("geçersiz fixture yolu: %s", path)
+		return nil, fmt.Errorf(i18n.T("invalid fixture path: %s"), path)
 	}
 	data, err := os.ReadFile(filepath.Join(f.filesDir, rel))
 	if errors.Is(err, os.ErrNotExist) {

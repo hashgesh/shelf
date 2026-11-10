@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Profile is a Conan profile reduced to its [settings].
@@ -84,7 +86,7 @@ func ParseProfile(name string, data []byte) (Profile, []string) {
 func loadProfile(root, file string, visiting map[string]bool) (Profile, []Warning, error) {
 	abs, _ := filepath.Abs(file)
 	if visiting[abs] {
-		return Profile{}, nil, fmt.Errorf("döngüsel include: %s", file)
+		return Profile{}, nil, fmt.Errorf(i18n.T("include cycle: %s"), file)
 	}
 	visiting[abs] = true
 	defer delete(visiting, abs)
@@ -95,7 +97,7 @@ func loadProfile(root, file string, visiting map[string]bool) (Profile, []Warnin
 	}
 	var warnings []Warning
 	if strings.Contains(string(data), "{{") || strings.Contains(string(data), "{%") {
-		warnings = append(warnings, Warning{Path: file, Message: "Jinja şablonu desteklenmiyor; şablon satırları yok sayıldı"})
+		warnings = append(warnings, Warning{Path: file, Message: i18n.T("Jinja templates are not supported; template lines were ignored")})
 	}
 	own, includes := ParseProfile("", stripTemplateLines(data))
 

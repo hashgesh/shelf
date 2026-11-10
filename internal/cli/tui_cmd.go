@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/clipboard"
 	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/i18n"
 	"github.com/hashgesh/shelf/internal/tui"
 )
 
@@ -19,7 +20,7 @@ import (
 func (a *app) runTUI(cmd *cobra.Command) error {
 	out, ok := cmd.OutOrStdout().(*os.File)
 	if !ok || !term.IsTerminal(int(out.Fd())) {
-		return errors.New("etkileşimli arayüz için terminal gerekli; betiklerde 'shelf list' veya 'shelf show' kullanın")
+		return errors.New(i18n.T("the interactive interface needs a terminal; use 'shelf list' or 'shelf show' in scripts"))
 	}
 	cfg, src, label, err := a.openSource(cmd)
 	if err != nil {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/conan"
 	"github.com/hashgesh/shelf/internal/format"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // detail is the modal window for one binary.
@@ -58,42 +59,42 @@ func (d *detail) lines(st styles, w int) []detailLine {
 	}
 
 	add(b.Ref()+st.dot()+b.Label(), st.title.Render)
-	section("Kimlik")
+	section(i18n.T("Identity"))
 	kv("Package ID", b.PackageID)
 	kv("Package revision", b.PackageRevision)
 	kv("Recipe revision", b.RecipeRevision)
 	kv("Repo", b.Repo)
 	kv("Path", b.Path)
-	kv("Boyut", format.Size(b.Size))
-	kv("Yüklenme", format.Time(b.Created)+st.dot()+format.Dash(b.CreatedBy))
+	kv(i18n.T("Size"), format.Size(b.Size))
+	kv(i18n.T("Uploaded"), format.Time(b.Created)+st.dot()+format.Dash(b.CreatedBy))
 	if b.OlderRevisions > 0 {
-		kv("Eski revizyon", fmt.Sprintf("%d (en yenisi gösteriliyor)", b.OlderRevisions))
+		kv(i18n.T("Older revisions"), fmt.Sprintf(i18n.T("%d (showing the newest)"), b.OlderRevisions))
 	}
 	kv("Metadata", metadataLabel(b.MetadataSource))
 
-	section("Profil")
+	section(i18n.T("Profile"))
 	switch {
 	case b.Profile != "":
-		kv("Eşleşen", b.Profile)
+		kv(i18n.T("Matched"), b.Profile)
 		if len(b.Profiles) > 1 {
-			kv("Diğer eşleşenler", strings.Join(others(b.Profiles, b.Profile), ", "))
+			kv(i18n.T("Other matches"), strings.Join(others(b.Profiles, b.Profile), ", "))
 		}
 	case len(b.Profiles) > 0:
-		kv("Eşleşen", fmt.Sprintf("tüm profiller (%d)", len(b.Profiles)))
+		kv(i18n.T("Matched"), fmt.Sprintf(i18n.T("all profiles (%d)"), len(b.Profiles)))
 	default:
-		kv("Eşleşen", "yok"+st.dot()+"özet: "+b.Summary())
+		kv(i18n.T("Matched"), i18n.T("none")+st.dot()+i18n.T("summary: ")+b.Summary())
 	}
 
 	section("Settings")
 	if len(b.Settings) == 0 {
-		kv("-", "(yok)")
+		kv("-", i18n.T("(none)"))
 	}
 	for _, k := range sortedKeys(b.Settings) {
 		kv(k, b.Settings[k])
 	}
 	section("Options")
 	if len(b.Options) == 0 {
-		kv("-", "(yok)")
+		kv("-", i18n.T("(none)"))
 	}
 	for _, k := range sortedKeys(b.Options) {
 		kv(k, b.Options[k])
@@ -109,11 +110,11 @@ func (d *detail) lines(st styles, w int) []detailLine {
 func metadataLabel(src string) string {
 	switch src {
 	case conan.SourceProperties:
-		return "Artifactory property'leri"
+		return i18n.T("Artifactory properties")
 	case conan.SourceConaninfo:
 		return "conaninfo.txt"
 	}
-	return "bilinmiyor (property ve conaninfo.txt yok)"
+	return i18n.T("unknown (no properties and no conaninfo.txt)")
 }
 
 func others(all []string, skip string) []string {
@@ -186,7 +187,7 @@ func (m model) detailView(bodyH int) string {
 		if m.st.ascii {
 			arrow = "v"
 		}
-		lines[len(lines)-1] = m.st.dim.Render(m.st.fit(fmt.Sprintf("  %s %d satır daha (j/k ile kaydır)", arrow, len(all)-end+1), innerW))
+		lines[len(lines)-1] = m.st.dim.Render(m.st.fit(fmt.Sprintf(i18n.T("  %s %d more lines (scroll with j/k)"), arrow, len(all)-end+1), innerW))
 	}
 	for len(lines) < rows {
 		lines = append(lines, strings.Repeat(" ", innerW))

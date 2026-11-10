@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // ---- view ----
@@ -20,10 +22,10 @@ func (m model) View() string {
 	var body string
 	switch {
 	case m.result == nil && m.loading:
-		body = m.center(m.st.loading.Render(strings.TrimSpace(m.spin.View())+" Artifactory'den veriler alınıyor..."), bodyH)
+		body = m.center(m.st.loading.Render(strings.TrimSpace(m.spin.View())+i18n.T(" Fetching data from Artifactory...")), bodyH)
 	case m.result == nil && m.err != nil:
-		body = m.center(m.st.errText.Render("Hata: ")+m.err.Error()+"\n\n"+
-			m.st.dim.Render("R ile tekrar dene, q ile çık"), bodyH)
+		body = m.center(m.st.errText.Render(i18n.T("Error: "))+m.err.Error()+"\n\n"+
+			m.st.dim.Render(i18n.T("R to retry, q to quit")), bodyH)
 	case m.showHelp:
 		body = m.helpView(bodyH)
 	case m.detail != nil:
@@ -46,14 +48,14 @@ func (m model) topBar() string {
 		parts = append(parts, "Matrix")
 	}
 	if m.result != nil {
-		parts = append(parts, fmt.Sprintf("%d paket", len(m.pkgs())))
+		parts = append(parts, fmt.Sprintf(i18n.T("%d packages"), len(m.pkgs())))
 	}
 	left := " " + strings.Join(parts, m.st.dot())
 	right := ""
 	if m.loading && m.result != nil {
 		// Styled on its own: nesting it inside the bar's style would let the
 		// inner reset sequence strip the bar style from the rest of the text.
-		right = m.st.busy.Render(" " + strings.TrimSpace(m.spin.View()) + " yenileniyor ")
+		right = m.st.busy.Render(" " + strings.TrimSpace(m.spin.View()) + i18n.T(" refreshing "))
 	}
 	avail := max(m.width-lipgloss.Width(right), 0)
 	left = lipgloss.NewStyle().MaxWidth(avail).Render(left)
@@ -69,23 +71,23 @@ func (m model) hints() [][2]string {
 	}
 	switch {
 	case m.searching:
-		return [][2]string{{"Enter", "onayla"}, {"Esc", "aramayı sil"}}
+		return [][2]string{{"Enter", i18n.T("confirm")}, {"Esc", i18n.T("clear search")}}
 	case m.showHelp:
-		return [][2]string{{"?/Esc", "kapat"}}
+		return [][2]string{{"?/Esc", i18n.T("close")}}
 	case m.detail != nil:
-		return [][2]string{{nav, "kaydır"}, {"c", "kopyala"}, {"Esc", "kapat"}}
+		return [][2]string{{nav, i18n.T("scroll")}, {"c", i18n.T("copy")}, {"Esc", i18n.T("close")}}
 	case m.result == nil:
-		return [][2]string{{"R", "yeniden dene"}, {"q", "çıkış"}}
+		return [][2]string{{"R", i18n.T("retry")}, {"q", i18n.T("quit")}}
 	case m.matrixMode:
 		return [][2]string{
-			{nav, "satır"}, {"←→", "profil"}, {"Enter", "binary'leri aç"}, {"/", "ara"},
-			{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", "temizle"}, {"m", "geri"}, {"q", "çıkış"},
+			{nav, i18n.T("row")}, {"←→", i18n.T("profile")}, {"Enter", i18n.T("open binaries")}, {"/", i18n.T("search")},
+			{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", i18n.T("clear")}, {"m", i18n.T("back")}, {"q", i18n.T("quit")},
 		}
 	}
 	return [][2]string{
-		{nav, "gezin"}, {"Tab", "panel"}, {"Enter", "detay"}, {"/", "ara"},
-		{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", "temizle"},
-		{"c", "kopyala"}, {"m", "matrix"}, {"?", "yardım"}, {"q", "çıkış"},
+		{nav, i18n.T("navigate")}, {"Tab", "panel"}, {"Enter", i18n.T("details")}, {"/", i18n.T("search")},
+		{"w/l", "Win/Linux"}, {"r/d", "Rel/Debug"}, {"0", i18n.T("clear")},
+		{"c", i18n.T("copy")}, {"m", "matrix"}, {"?", i18n.T("help")}, {"q", i18n.T("quit")},
 	}
 }
 
@@ -99,15 +101,15 @@ func (m model) activeFilters() string {
 		parts = append(parts, m.filter.BuildType)
 	}
 	if m.filter.Profile != "" {
-		parts = append(parts, "profil: "+m.filter.Profile)
+		parts = append(parts, i18n.T("profile: ")+m.filter.Profile)
 	}
 	if m.search != "" && !m.searching {
-		parts = append(parts, "ara: "+m.search)
+		parts = append(parts, i18n.T("search: ")+m.search)
 	}
 	if len(parts) == 0 {
 		return ""
 	}
-	return "filtre: " + strings.Join(parts, " ")
+	return i18n.T("filter: ") + strings.Join(parts, " ")
 }
 
 func (m model) bottomBar() string {
@@ -132,9 +134,9 @@ func (m model) bottomBar() string {
 	case m.status != "":
 		right = append(right, m.st.okText.Render(m.status))
 	case m.err != nil && m.result != nil:
-		right = append(right, m.st.errText.Render("yenileme başarısız: "+m.err.Error()))
+		right = append(right, m.st.errText.Render(i18n.T("refresh failed: ")+m.err.Error()))
 	case m.result != nil && len(m.result.Warnings) > 0:
-		right = append(right, m.st.warnText.Render(fmt.Sprintf("%d uyarı", len(m.result.Warnings))))
+		right = append(right, m.st.warnText.Render(fmt.Sprintf(i18n.T("%d warnings"), len(m.result.Warnings))))
 	}
 	r := strings.Join(right, m.st.dot())
 	if r != "" {
@@ -196,7 +198,7 @@ func (m model) listLines(items []string, c *cursor, innerW, rows int, focused bo
 		lines = append(lines, text)
 	}
 	if len(items) == 0 {
-		lines = append(lines, m.st.dim.Render(m.st.fit("  (boş)", innerW)))
+		lines = append(lines, m.st.dim.Render(m.st.fit(i18n.T("  (empty)"), innerW)))
 	}
 	return lines
 }
@@ -302,21 +304,21 @@ func (m model) bodyView() string {
 			if r := v.Latest(); r != nil {
 				total = len(r.Binaries)
 			}
-			count := fmt.Sprintf("%d binary", total)
+			count := fmt.Sprintf(i18n.T("%d binaries"), total)
 			if filtered {
-				count = fmt.Sprintf("%d/%d binary", len(m.versionBinaries(v)), total)
+				count = fmt.Sprintf(i18n.T("%d/%d binaries"), len(m.versionBinaries(v)), total)
 			}
 			verNames = append(verNames, label+"  ("+count+")")
 		}
 	}
-	pkgTitle := "Paketler"
+	pkgTitle := i18n.T("Packages")
 	if m.search != "" {
 		pkgTitle += fmt.Sprintf(" (%d/%d)", len(m.pkgs()), len(m.result.Catalog.Packages))
 	}
 
 	pkgFocus, verFocus := m.focus == focusPackages, m.focus == focusVersions
 	pkgPanel := m.panel(pkgTitle, m.listLines(pkgNames, &m.packages, d.leftW-2, d.pkgRows, pkgFocus), d.leftW, d.pkgH, pkgFocus)
-	verPanel := m.panel("Sürümler", m.listLines(verNames, &m.versions, d.rightW-2, d.verRows, verFocus), d.rightW, d.verH, verFocus)
+	verPanel := m.panel(i18n.T("Versions"), m.listLines(verNames, &m.versions, d.rightW-2, d.verRows, verFocus), d.rightW, d.verH, verFocus)
 	tblPanel := m.binaryPanel(d.rightW, d.tblH, d.tblRows)
 	if d.narrow {
 		return lipgloss.JoinVertical(lipgloss.Left, pkgPanel, verPanel, tblPanel)
@@ -329,11 +331,11 @@ func (m model) binaryPanel(w, h, rows int) string {
 	focused := m.focus == focusBinaries
 	bs := m.currentBinaries()
 
-	title := "Binary'ler"
+	title := i18n.T("Binaries")
 	if v := m.currentVersion(); v != nil && v.Latest() != nil {
-		title = "Binary'ler" + m.st.dot() + v.Ref(m.currentPackage().Name) + m.st.dot() + "rrev " + shortID(v.Latest().Revision)
+		title = i18n.T("Binaries") + m.st.dot() + v.Ref(m.currentPackage().Name) + m.st.dot() + "rrev " + shortID(v.Latest().Revision)
 		if len(v.Revisions) > 1 {
-			title += fmt.Sprintf(" (+%d eski revizyon)", len(v.Revisions)-1)
+			title += fmt.Sprintf(i18n.T(" (+%d older revisions)"), len(v.Revisions)-1)
 		}
 	}
 
@@ -343,7 +345,7 @@ func (m model) binaryPanel(w, h, rows int) string {
 
 	var header []string
 	for i, c := range cols {
-		header = append(header, cell(i, c.title))
+		header = append(header, cell(i, i18n.T(c.title)))
 	}
 	lines := []string{m.st.header.Render(m.st.fit("  "+strings.Join(header, gap), innerW))}
 
@@ -370,9 +372,9 @@ func (m model) binaryPanel(w, h, rows int) string {
 		lines = append(lines, row)
 	}
 	if len(bs) == 0 {
-		msg := "  Binary yok"
+		msg := i18n.T("  No binaries")
 		if !m.filter.IsZero() {
-			msg = "  Filtreye uyan binary yok (0 ile temizle)"
+			msg = i18n.T("  No binaries match the filter (0 clears it)")
 		}
 		lines = append(lines, m.st.dim.Render(m.st.fit(msg, innerW)))
 	}
@@ -381,26 +383,26 @@ func (m model) binaryPanel(w, h, rows int) string {
 
 func (m model) helpView(h int) string {
 	rows := [][2]string{
-		{"↑ ↓ / j k", "satır seç"},
-		{"PgUp PgDn, g G", "sayfa / başa / sona git"},
-		{"Tab, Shift+Tab, ← →", "panel değiştir"},
-		{"Enter", "sonraki panel / binary detayı"},
-		{"/", "paket adında anlık ara"},
-		{"w / l", "sadece Windows / Linux"},
-		{"r / d", "sadece Release / Debug"},
-		{"0", "filtreleri ve aramayı temizle"},
-		{"c", "conan install komutunu kopyala"},
-		{"m", "matrix (paket × profil) aç / kapat"},
-		{"F5 / R", "verileri yeniden yükle"},
-		{"?", "bu yardımı aç / kapat"},
-		{"q, Ctrl+C", "çıkış"},
+		{"↑ ↓ / j k", i18n.T("select row")},
+		{"PgUp PgDn, g G", i18n.T("page / go to top / bottom")},
+		{"Tab, Shift+Tab, ← →", i18n.T("switch panel")},
+		{"Enter", i18n.T("next panel / binary details")},
+		{"/", i18n.T("search package names as you type")},
+		{"w / l", i18n.T("only Windows / Linux")},
+		{"r / d", i18n.T("only Release / Debug")},
+		{"0", i18n.T("clear filters and search")},
+		{"c", i18n.T("copy the conan install command")},
+		{"m", i18n.T("open / close the matrix (package × profile)")},
+		{"F5 / R", i18n.T("reload data")},
+		{"?", i18n.T("open / close this help")},
+		{"q, Ctrl+C", i18n.T("quit")},
 	}
 	var b strings.Builder
-	b.WriteString(m.st.title.Render("Kısayollar") + "\n\n")
+	b.WriteString(m.st.title.Render(i18n.T("Shortcuts")) + "\n\n")
 	for _, r := range rows {
 		b.WriteString(m.st.key.Render(m.st.fit(r[0], 22)) + "  " + r[1] + "\n")
 	}
-	b.WriteString("\n" + m.st.dim.Render("Kapatmak için ? veya Esc"))
+	b.WriteString("\n" + m.st.dim.Render(i18n.T("? or Esc to close")))
 	box := m.st.panel.Padding(1, 3).Render(b.String())
 	if lipgloss.Width(box) <= m.width && lipgloss.Height(box) <= h {
 		return m.center(box, h)

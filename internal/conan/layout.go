@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Everything that depends on how Artifactory stores Conan 2 packages lives in
@@ -90,7 +92,7 @@ func newLayout(template string, required ...string) (*Layout, error) {
 		}
 		if m := placeholderRe.FindStringSubmatch(s); m != nil {
 			if seen[m[1]] {
-				return nil, fmt.Errorf("path düzeni: {%s} birden fazla kez geçiyor", m[1])
+				return nil, fmt.Errorf(i18n.T("path layout: {%s} appears more than once"), m[1])
 			}
 			seen[m[1]] = true
 			fields = append(fields, m[1])
@@ -98,7 +100,7 @@ func newLayout(template string, required ...string) (*Layout, error) {
 			continue
 		}
 		if strings.ContainsAny(s, "{}") {
-			return nil, fmt.Errorf("path düzeni: bilinmeyen yer tutucu %q", s)
+			return nil, fmt.Errorf(i18n.T("path layout: unknown placeholder %q"), s)
 		}
 		pattern.WriteString(regexp.QuoteMeta(s))
 	}
@@ -107,7 +109,7 @@ func newLayout(template string, required ...string) (*Layout, error) {
 	pattern.WriteString("(?:/[^/]+)?$")
 	for _, req := range required {
 		if !seen[req] {
-			return nil, fmt.Errorf("path düzeni: {%s} eksik", req)
+			return nil, fmt.Errorf(i18n.T("path layout: {%s} missing"), req)
 		}
 	}
 	return &Layout{template: template, re: regexp.MustCompile(pattern.String()), fields: fields}, nil
@@ -141,7 +143,7 @@ func (l *Layout) Template() string { return l.template }
 func (l *Layout) Parse(path string) (PathInfo, error) {
 	m := l.re.FindStringSubmatch(strings.Trim(path, "/"))
 	if m == nil {
-		return PathInfo{}, fmt.Errorf("path beklenen düzene uymuyor (%s): %s", l.template, path)
+		return PathInfo{}, fmt.Errorf(i18n.T("path does not match the expected layout (%s): %s"), l.template, path)
 	}
 	var pi PathInfo
 	for i, f := range l.fields {

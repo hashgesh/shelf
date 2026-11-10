@@ -11,16 +11,18 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Method names reported by Copy.
 const (
-	MethodNative = "Windows panosu"
+	MethodNative = "Windows clipboard"
 	MethodOSC52  = "OSC52"
 )
 
 // ErrUnavailable means no clipboard mechanism worked.
-var ErrUnavailable = errors.New("pano kullanılamıyor")
+var ErrUnavailable = i18n.Error("clipboard unavailable")
 
 // Copier copies text and reports which mechanism succeeded.
 type Copier struct {

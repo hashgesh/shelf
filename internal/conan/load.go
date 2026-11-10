@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/artifactory"
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Source is what Load needs from Artifactory; *artifactory.Client and
@@ -120,9 +121,9 @@ func fetchConaninfo(ctx context.Context, src Source, targets []*Binary, opts Loa
 
 			data, err := readConaninfo(ctx, src, b, opts.CacheDir)
 			if err != nil {
-				msg := fmt.Sprintf("conaninfo.txt alınamadı: %v", err)
+				msg := fmt.Sprintf(i18n.T("cannot fetch conaninfo.txt: %v"), err)
 				if errors.Is(err, artifactory.ErrNotFound) {
-					msg = "conaninfo.txt bulunamadı; ayarlar bilinmiyor"
+					msg = i18n.T("conaninfo.txt not found; settings unknown")
 				}
 				mu.Lock()
 				warnings = append(warnings, Warning{Path: b.Repo + "/" + b.ConaninfoPath(), Message: msg})

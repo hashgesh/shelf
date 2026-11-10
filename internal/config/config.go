@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Environment variable names.
@@ -46,17 +48,17 @@ const (
 
 // ErrInvalid is wrapped by every configuration error so callers can map it
 // to the "configuration error" exit code.
-var ErrInvalid = errors.New("geçersiz yapılandırma")
+var ErrInvalid = i18n.Error("invalid configuration")
 
 // Source tells where an effective setting came from.
 type Source string
 
 // Possible setting sources.
 const (
-	SourceDefault Source = "varsayılan"
-	SourceFile    Source = "dosya"
-	SourceEnv     Source = "ortam"
-	SourceFlag    Source = "bayrak"
+	SourceDefault Source = "default"
+	SourceFile    Source = "file"
+	SourceEnv     Source = "env"
+	SourceFlag    Source = "flag"
 )
 
 // Setting keys, shared by the YAML file, Sources and `config show`.
@@ -131,7 +133,7 @@ type Options struct {
 func DefaultPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
-		return "", fmt.Errorf("%w: yapılandırma klasörü bulunamadı: %w", ErrInvalid, err)
+		return "", fmt.Errorf(i18n.T("%w: cannot find the configuration folder: %w"), ErrInvalid, err)
 	}
 	return filepath.Join(dir, "shelf", "config.yaml"), nil
 }
@@ -317,36 +319,36 @@ func (c *Config) applyFlags(f Overrides) {
 func (c *Config) Validate() error {
 	var problems []string
 	if c.URL == "" {
-		problems = append(problems, fmt.Sprintf("url ayarlı değil (%s, --url veya config dosyası)", EnvURL))
+		problems = append(problems, fmt.Sprintf(i18n.T("url not set (%s, --url or config file)"), EnvURL))
 	} else if u, err := url.Parse(c.URL); err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-		problems = append(problems, fmt.Sprintf("url geçersiz: %q (http:// veya https:// ile başlamalı)", c.URL))
+		problems = append(problems, fmt.Sprintf(i18n.T("invalid url: %q (must start with http:// or https://)"), c.URL))
 	}
 	if len(c.Repos) == 0 {
-		problems = append(problems, "en az bir repo gerekli")
+		problems = append(problems, i18n.T("at least one repo is required"))
 	}
 	if c.Timeout <= 0 {
-		problems = append(problems, "timeout sıfırdan büyük olmalı")
+		problems = append(problems, i18n.T("timeout must be greater than zero"))
 	}
 	switch c.Auth {
 	case AuthAuto:
 	case AuthBearer:
 		if c.Token == "" {
-			problems = append(problems, "auth=bearer için token gerekli")
+			problems = append(problems, i18n.T("auth=bearer requires a token"))
 		}
 	case AuthBasic:
 		if c.User == "" || (c.Token == "" && c.Password == "") {
-			problems = append(problems, "auth=basic için user ve password (veya token) gerekli")
+			problems = append(problems, i18n.T("auth=basic requires user and password (or token)"))
 		}
 	default:
-		problems = append(problems, fmt.Sprintf("auth geçersiz: %q (auto, bearer, basic)", c.Auth))
+		problems = append(problems, fmt.Sprintf(i18n.T("invalid auth: %q (auto, bearer, basic)"), c.Auth))
 	}
 	switch c.MetadataSource {
 	case MetadataAuto, MetadataProperties, MetadataConaninfo:
 	default:
-		problems = append(problems, fmt.Sprintf("metadata_source geçersiz: %q (auto, properties, conaninfo)", c.MetadataSource))
+		problems = append(problems, fmt.Sprintf(i18n.T("invalid metadata_source: %q (auto, properties, conaninfo)"), c.MetadataSource))
 	}
 	if c.Password != "" && c.User == "" {
-		problems = append(problems, "password için user gerekli")
+		problems = append(problems, i18n.T("password requires user"))
 	}
 	if len(problems) > 0 {
 		return fmt.Errorf("%w: %s", ErrInvalid, strings.Join(problems, "; "))
@@ -359,13 +361,13 @@ func ParseTimeout(s string) (time.Duration, error) {
 	s = strings.TrimSpace(s)
 	if n, err := strconv.Atoi(s); err == nil {
 		if n <= 0 {
-			return 0, fmt.Errorf("%w: timeout sıfırdan büyük olmalı: %q", ErrInvalid, s)
+			return 0, fmt.Errorf(i18n.T("%w: timeout must be greater than zero: %q"), ErrInvalid, s)
 		}
 		return time.Duration(n) * time.Second, nil
 	}
 	d, err := time.ParseDuration(s)
 	if err != nil || d <= 0 {
-		return 0, fmt.Errorf("%w: timeout geçersiz: %q (örnek: 30s, 2m)", ErrInvalid, s)
+		return 0, fmt.Errorf(i18n.T("%w: invalid timeout: %q (e.g. 30s, 2m)"), ErrInvalid, s)
 	}
 	return d, nil
 }

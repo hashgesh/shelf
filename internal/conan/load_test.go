@@ -110,7 +110,7 @@ func TestLoadWarnsWhenConaninfoMissing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(res.Warnings) != 2 || !strings.Contains(res.Warnings[0].Message, "bulunamadı") {
+	if len(res.Warnings) != 2 || !strings.Contains(res.Warnings[0].Message, "not found") {
 		t.Errorf("warnings = %v", res.Warnings)
 	}
 }
