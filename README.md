@@ -100,7 +100,7 @@ timeout: 30s
 | `token` | `SHELF_TOKEN` | `--token` | Access token. Bayrak süreç listesinde görünür; ortam değişkeni tercih edin. |
 | `password` | `SHELF_PASSWORD` | — | Token yerine şifre. |
 | `repos` | `SHELF_REPOS` (virgülle) | `--repo` (tekrarlanabilir) | Taranacak Conan repoları. Varsayılan `conan-local`. |
-| `profiles_dir` | `CONAN_HOME` (`/profiles` eklenir) | `--profiles-dir` | Conan profil klasörü. Varsayılan `~/.conan2/profiles`. |
+| `profiles_dir` | — | `--profiles-dir` | Conan profil klasörü. Varsayılan `~/.conan2/profiles`; `CONAN_HOME` ayarlıysa `$CONAN_HOME/profiles`. |
 | `insecure_tls` | — | `--insecure` | Self-signed sertifikalar için TLS doğrulamasını kapatır. |
 | `timeout` | — | `--timeout` | İstek zaman aşımı, örnek `30s`, `2m`. |
 | `auth` | — | — | `auto`: şifre varsa Basic, yalnızca token varsa `Authorization: Bearer`. Kullanıcı adı + token ile Basic için `basic`. |
@@ -108,6 +108,10 @@ timeout: 30s
 
 Token ve şifre hiçbir çıktıda, hata mesajında veya `--json` çıktısında gösterilmez.
 Config dosyası Linux'ta yalnızca sahibinin okuyabileceği izinlerle (`0600`) yazılır.
+
+`CONAN_HOME` yalnızca `profiles_dir` için varsayılanı belirler; config dosyasında
+veya `--profiles-dir` ile verilen klasör önceliklidir. `config init`, varsayılan
+klasörü dosyaya yazmaz; böylece `CONAN_HOME` değişince shelf de onu izler.
 
 ## Etkileşimli arayüz (TUI)
 
@@ -155,6 +159,10 @@ conan install --requires="zlib/1.3.1#cc2ab941..." -pr:h linux-gcc12-x86_64-relea
 ```
 
 Komutta Conan remote adı (`-r`) yoktur, çünkü remote adı her istemcinin kendi ayarıdır.
+
+Tırnaklama: `*`, `#`, boşluk gibi karakterler içeren argümanlar çift tırnağa alınır
+(bash, cmd ve PowerShell'de geçerlidir). Değerde `$`, `` ` ``, `"`, `\` veya `!`
+varsa tek tırnak kullanılır; bu biçim bash ve PowerShell'de geçerlidir, cmd'de değildir.
 
 **Panoya kopyalama (`c`)**: Windows'ta sistem panosu kullanılır. Linux'ta sırasıyla
 `wl-copy`, `xclip`, `xsel` denenir; hiçbiri yoksa (ör. SSH oturumu) terminale
@@ -284,6 +292,7 @@ Varsayılan beklentiler `internal/conan/layout.go` dosyasında tek yerde tanıml
 Path düzeni : {user}/{name}/{version}/{channel}/{rrev}/package/{pkgid}/{prev}
               (user/channel yoksa "_")
 Dosyalar    : conan_package.tgz, conaninfo.txt
+Recipe      : {user}/{name}/{version}/{channel}/{rrev}/export/conanfile.py
 Property'ler: conan.package.name, conan.package.version, conan.package.user,
               conan.package.channel, conan.settings.*, conan.options.*
 ```
@@ -292,7 +301,16 @@ Gerçek ortam farklıysa yalnızca bu dosyadaki sabitleri değiştirmek yeterlid
 Path düzenine uymayan öğeler atlanır ve uyarı olarak listelenir.
 
 Büyük repolarda AQL sonuçları 1000'lik sayfalar halinde alınır (Artifactory'nin
-yönetici olmayan kullanıcılar için varsayılan sonuç sınırı).
+yönetici olmayan kullanıcılar için varsayılan sonuç sınırı). Sayfalama, boş bir
+sayfa gelene kadar sürer; sunucu sınırı property satırlarına uygulasa da (sayfa
+başına 1000'den az öğe) hiçbir öğe atlanmaz.
+
+Bir sürümün "en yeni" recipe revision'ı, recipe dosyasının (`conanfile.py`)
+Artifactory'ye yüklenme tarihine göre seçilir. Recipe dosyası bulunamazsa
+revision'ın en son yüklenen binary'sinin tarihi kullanılır.
+
+Aynı binary birden fazla repoda varsa (ör. promote edilmiş paketler) bir kez
+listelenir.
 
 ## Geliştirme
 
