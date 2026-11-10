@@ -1,84 +1,93 @@
 # shelf
 
-JFrog Artifactory'deki Conan 2 paketlerini terminalden okunur şekilde gezmek için
-TUI + CLI aracı. Artifactory arayüzünde yalnızca hash olarak görünen binary'lerin
-hangi OS / mimari / derleyici / build type için olduğunu tablo halinde gösterir,
-binary'leri Conan profillerinizle eşleştirir ve hangi paketin hangi profil için
-eksik olduğunu bir matriste gösterir.
+[Türkçe](README.tr.md)
 
-Windows ve Linux'ta tek dosya olarak çalışır; kurulum, çalışma zamanı ya da internet
-erişimi gerektirmez.
+A TUI + CLI for browsing Conan 2 packages in JFrog Artifactory from the terminal.
+The Artifactory UI shows binaries only as hashes. shelf lays them out in a table by
+OS / architecture / compiler / build type, matches binaries to your Conan profiles,
+and shows in a matrix which package is missing for which profile.
 
-![shelf ana ekranı](docs/tui.png)
+It runs as a single file on Windows and Linux. No installation, runtime or internet
+access is needed.
 
-## İçindekiler
+The interface text is in Turkish.
 
-- [Kurulum](#kurulum)
-- [Hızlı başlangıç](#hızlı-başlangıç)
-- [Yapılandırma](#yapılandırma)
-- [Etkileşimli arayüz (TUI)](#etkileşimli-arayüz-tui)
-- [Komut satırı](#komut-satırı)
-- [Profil eşleştirme](#profil-eşleştirme)
-- [Binary bilgisinin kaynağı](#binary-bilgisinin-kaynağı)
-- [Gerçek ortamda doğrulama](#gerçek-ortamda-doğrulama)
-- [Geliştirme](#geliştirme)
+![shelf main screen](docs/tui.png)
 
-## Kurulum
+## Contents
 
-[Releases](../../releases) sayfasından platformunuza uygun arşivi indirin
-(`<sürüm>` yerine ör. `v0.1.0`):
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [Interactive interface (TUI)](#interactive-interface-tui)
+- [Command line](#command-line)
+- [Profile matching](#profile-matching)
+- [Where binary information comes from](#where-binary-information-comes-from)
+- [Verifying against a real server](#verifying-against-a-real-server)
+- [Development](#development)
 
-| Platform | Arşiv |
+## Installation
+
+Download the archive for your platform from the [Releases](../../releases) page
+(replace `<version>` with e.g. `v0.1.0`):
+
+| Platform | Archive |
 | --- | --- |
-| Windows x64 | `shelf_<sürüm>_windows_amd64.zip` |
-| Linux x64 | `shelf_<sürüm>_linux_amd64.tar.gz` |
-| Linux ARM64 | `shelf_<sürüm>_linux_arm64.tar.gz` |
+| Windows x64 | `shelf_<version>_windows_amd64.zip` |
+| Linux x64 | `shelf_<version>_linux_amd64.tar.gz` |
+| Linux ARM64 | `shelf_<version>_linux_arm64.tar.gz` |
 
-Her arşivde binary (`shelf` / `shelf.exe`), `README.md` ve `LICENSE` bulunur.
+Each archive contains the binary (`shelf` / `shelf.exe`), `README.md` and `LICENSE`.
 
 Linux:
 
 ```sh
-sha256sum -c SHA256SUMS --ignore-missing     # isteğe bağlı bütünlük kontrolü
+sha256sum -c SHA256SUMS --ignore-missing     # optional integrity check
 tar -xzf shelf_v0.1.0_linux_amd64.tar.gz
-sudo install shelf /usr/local/bin/           # veya ~/.local/bin
+sudo install shelf /usr/local/bin/           # or ~/.local/bin
 ```
 
-Windows: zip'i açıp `shelf.exe` dosyasını `PATH` üzerindeki bir klasöre koyun.
-Bütünlük kontrolü için PowerShell'de `Get-FileHash shelf_v0.1.0_windows_amd64.zip`
-çıktısını `SHA256SUMS` ile karşılaştırabilirsiniz.
+Windows: unzip and put `shelf.exe` in a folder on your `PATH`.
+To check integrity, compare the output of `Get-FileHash shelf_v0.1.0_windows_amd64.zip`
+in PowerShell with `SHA256SUMS`.
 
-Go veya başka bir çalışma zamanı gerekmez; binary'ler statiktir.
-
-Kapalı ağda dosyayı başka bir makineden kopyalamanız yeterlidir; shelf hiçbir
-harici bağımlılık indirmez.
-
-## Hızlı başlangıç
+With Go installed you can also run:
 
 ```sh
-shelf config init     # Artifactory adresi, kullanıcı, token ve repo sorulur
-shelf                 # etkileşimli arayüzü açar
-shelf list            # paketler ve sürümleri
-shelf show zlib       # zlib'in en yeni sürümünün binary tablosu
-shelf matrix          # paket × profil tablosu
+go install github.com/hashgesh/shelf/cmd/shelf@latest
 ```
 
-## Yapılandırma
+The release binaries are static and need no Go or other runtime.
 
-Ayarlar şu öncelik sırasıyla okunur: **komut satırı bayrağı > ortam değişkeni > config dosyası**.
+On an air-gapped network, copying the file from another machine is enough. shelf
+downloads no external dependencies.
+
+## Quick start
 
 ```sh
-shelf config init     # etkileşimli kurulum (token girişi ekranda görünmez)
-shelf config show     # etkin ayarlar ve her değerin kaynağı; token/şifre maskelenir
+shelf config init     # asks for the Artifactory URL, user, token and repo
+shelf                 # opens the interactive interface
+shelf list            # packages and their versions
+shelf show zlib       # binary table for the newest zlib version
+shelf matrix          # package × profile table
 ```
 
-Config dosyası konumu:
+## Configuration
+
+Settings are read in this order of precedence: **command-line flag > environment variable > config file**.
+
+```sh
+shelf config init     # interactive setup (token input is hidden)
+shelf config show     # effective settings and the source of each value; token/password masked
+```
+
+Config file location:
 
 - Windows: `%APPDATA%\shelf\config.yaml`
-- Linux: `~/.config/shelf/config.yaml` (`$XDG_CONFIG_HOME` varsa onun altı)
-- Başka bir dosya için: `--config <yol>` veya `SHELF_CONFIG`
+- Linux: `~/.config/shelf/config.yaml` (under `$XDG_CONFIG_HOME` if set)
+- Another file: `--config <path>` or `SHELF_CONFIG`
 
-Örnek `config.yaml`:
+Example `config.yaml`:
 
 ```yaml
 url: https://artifactory.example/artifactory
@@ -89,124 +98,124 @@ repos:
 profiles_dir: ~/.conan2/profiles
 insecure_tls: false
 timeout: 30s
-# auth: auto | bearer | basic                       (varsayılan: auto)
-# metadata_source: auto | properties | conaninfo    (varsayılan: auto)
+# auth: auto | bearer | basic                       (default: auto)
+# metadata_source: auto | properties | conaninfo    (default: auto)
 ```
 
-| Alan | Ortam değişkeni | Bayrak | Açıklama |
+| Field | Environment variable | Flag | Description |
 | --- | --- | --- | --- |
-| `url` | `SHELF_URL` | `--url` | Artifactory adresi. Yalnızca host verilirse `/artifactory` eklenir. |
-| `user` | `SHELF_USER` | `--user` | Kullanıcı adı. |
-| `token` | `SHELF_TOKEN` | `--token` | Access token. Bayrak süreç listesinde görünür; ortam değişkeni tercih edin. |
-| `password` | `SHELF_PASSWORD` | — | Token yerine şifre. |
-| `repos` | `SHELF_REPOS` (virgülle) | `--repo` (tekrarlanabilir) | Taranacak Conan repoları. Varsayılan `conan-local`. |
-| `profiles_dir` | — | `--profiles-dir` | Conan profil klasörü. Varsayılan `~/.conan2/profiles`; `CONAN_HOME` ayarlıysa `$CONAN_HOME/profiles`. |
-| `insecure_tls` | — | `--insecure` | Self-signed sertifikalar için TLS doğrulamasını kapatır. |
-| `timeout` | — | `--timeout` | İstek zaman aşımı, örnek `30s`, `2m`. |
-| `auth` | — | — | `auto`: şifre varsa Basic, yalnızca token varsa `Authorization: Bearer`. Kullanıcı adı + token ile Basic için `basic`. |
-| `metadata_source` | — | — | Bkz. [Binary bilgisinin kaynağı](#binary-bilgisinin-kaynağı). |
+| `url` | `SHELF_URL` | `--url` | Artifactory URL. If only a host is given, `/artifactory` is appended. |
+| `user` | `SHELF_USER` | `--user` | User name. |
+| `token` | `SHELF_TOKEN` | `--token` | Access token. The flag shows up in the process list; prefer the environment variable. |
+| `password` | `SHELF_PASSWORD` | — | Password instead of a token. |
+| `repos` | `SHELF_REPOS` (comma-separated) | `--repo` (repeatable) | Conan repos to scan. Default `conan-local`. |
+| `profiles_dir` | — | `--profiles-dir` | Conan profile folder. Default `~/.conan2/profiles`, or `$CONAN_HOME/profiles` if `CONAN_HOME` is set. |
+| `insecure_tls` | — | `--insecure` | Disables TLS verification for self-signed certificates. |
+| `timeout` | — | `--timeout` | Request timeout, e.g. `30s`, `2m`. |
+| `auth` | — | — | `auto`: Basic if a password is set, `Authorization: Bearer` if only a token is set. Use `basic` for Basic with user name + token. |
+| `metadata_source` | — | — | See [Where binary information comes from](#where-binary-information-comes-from). |
 
-Token ve şifre hiçbir çıktıda, hata mesajında veya `--json` çıktısında gösterilmez.
-Config dosyası Linux'ta yalnızca sahibinin okuyabileceği izinlerle (`0600`) yazılır.
+The token and password never appear in any output, error message or `--json` output.
+On Linux the config file is written readable only by its owner (`0600`).
 
-`CONAN_HOME` yalnızca `profiles_dir` için varsayılanı belirler; config dosyasında
-veya `--profiles-dir` ile verilen klasör önceliklidir. `config init`, varsayılan
-klasörü dosyaya yazmaz; böylece `CONAN_HOME` değişince shelf de onu izler.
+`CONAN_HOME` only sets the default for `profiles_dir`. A folder given in the config
+file or with `--profiles-dir` takes precedence. `config init` does not write the
+default folder to the file, so shelf follows `CONAN_HOME` when it changes.
 
-## Etkileşimli arayüz (TUI)
+## Interactive interface (TUI)
 
-`shelf` parametresiz çalıştırıldığında açılır. Açılışta tek bir AQL sorgusuyla
-tüm veri çekilir; sonraki gezinme bellekten yapılır.
+Opens when `shelf` is run without arguments. All data is fetched with a single AQL
+query at startup; navigation after that works from memory.
 
-- Geniş terminalde solda paket listesi, sağda sürümler ve binary tablosu yer alır.
-  100 sütunun altında paneller alt alta dizilir.
-- Binary tablosu: **OS, Arch, Compiler, Build, Shared, Boyut, Tarih, Yükleyen, ID, Profil**.
-  Terminal daraldıkça önce Yükleyen ve Tarih gibi ikincil sütunlar gizlenir.
-- Hiçbir profille eşleşmeyen binary'ler soluk renkte ve özet etiketle
-  (ör. `Linux_x86_64_gcc12_Release`) gösterilir.
+- On a wide terminal the package list is on the left, versions and the binary table
+  on the right. Below 100 columns the panels stack vertically.
+- Binary table columns: **OS, Arch, Compiler, Build, Shared, Size, Date, Uploader, ID, Profile**.
+  As the terminal narrows, secondary columns such as Uploader and Date are hidden first.
+- Binaries that match no profile are shown dimmed with a summary label
+  (e.g. `Linux_x86_64_gcc12_Release`).
 
-| Tuş | İşlev |
+| Key | Action |
 | --- | --- |
-| `↑` `↓` / `j` `k` | Satır seç |
-| `PgUp` `PgDn`, `g` `G` | Sayfa kaydır, başa / sona git |
-| `Tab`, `Shift+Tab`, `←` `→` | Panel değiştir |
-| `Enter` | Sonraki panel; binary tablosunda detay penceresi |
-| `/` | Paket adında anlık arama (`Enter` onaylar, `Esc` siler) |
-| `w` / `l` | Sadece Windows / sadece Linux (tekrar basınca kapanır) |
-| `r` / `d` | Sadece Release / sadece Debug |
-| `0` | Tüm filtreleri ve aramayı temizle |
-| `m` | Matrix görünümü |
-| `c` | Seçili binary için `conan install` komutunu panoya kopyala |
-| `F5` / `R` | Verileri yeniden yükle (seçim korunur) |
-| `?` | Yardım |
-| `q` | Çıkış |
+| `↑` `↓` / `j` `k` | Select row |
+| `PgUp` `PgDn`, `g` `G` | Scroll a page, go to top / bottom |
+| `Tab`, `Shift+Tab`, `←` `→` | Switch panel |
+| `Enter` | Next panel; detail window in the binary table |
+| `/` | Live search by package name (`Enter` confirms, `Esc` clears) |
+| `w` / `l` | Windows only / Linux only (press again to turn off) |
+| `r` / `d` | Release only / Debug only |
+| `0` | Clear all filters and search |
+| `m` | Matrix view |
+| `c` | Copy the `conan install` command for the selected binary |
+| `F5` / `R` | Reload data (selection is kept) |
+| `?` | Help |
+| `q` | Quit |
 
-Alt bar o anki kısayolları, aktif filtreleri ve uyarı sayısını gösterir.
+The bottom bar shows the current shortcuts, active filters and the warning count.
 
-### Detay penceresi
+### Detail window
 
-Binary tablosunda `Enter`'a basınca tam package ID, package ve recipe revision,
-Artifactory path'i, tüm settings ve options, eşleşen profil(ler) ve hazır bir
-`conan install` komutu gösterilir.
+Pressing `Enter` in the binary table shows the full package ID, package and recipe
+revision, Artifactory path, all settings and options, the matching profile(s) and a
+ready-to-use `conan install` command.
 
-![detay penceresi](docs/detail.png)
+![detail window](docs/detail.png)
 
-Komut, recipe revision'ı sabitler ve eşleşen profili `-pr:h` ile kullanır (eşleşme
-yoksa her setting `-s` ile verilir); binary'nin options değerleri `-o` ile eklenir:
+The command pins the recipe revision and uses the matching profile with `-pr:h`
+(with no match, each setting is passed with `-s`). The binary's options are added with `-o`:
 
 ```sh
 conan install --requires="zlib/1.3.1#cc2ab941..." -pr:h linux-gcc12-x86_64-release -o "zlib/*:fPIC=True" -o "zlib/*:shared=False"
 ```
 
-Komutta Conan remote adı (`-r`) yoktur, çünkü remote adı her istemcinin kendi ayarıdır.
+The command has no Conan remote name (`-r`), because the remote name is each client's own setting.
 
-Tırnaklama: `*`, `#`, boşluk gibi karakterler içeren argümanlar çift tırnağa alınır
-(bash, cmd ve PowerShell'de geçerlidir). Değerde `$`, `` ` ``, `"`, `\` veya `!`
-varsa tek tırnak kullanılır; bu biçim bash ve PowerShell'de geçerlidir, cmd'de değildir.
+Quoting: arguments containing characters such as `*`, `#` or spaces are wrapped in
+double quotes (valid in bash, cmd and PowerShell). If the value contains `$`, `` ` ``,
+`"`, `\` or `!`, single quotes are used; that form works in bash and PowerShell but not in cmd.
 
-**Panoya kopyalama (`c`)**: Windows'ta sistem panosu kullanılır. Linux'ta sırasıyla
-`wl-copy`, `xclip`, `xsel` denenir; hiçbiri yoksa (ör. SSH oturumu) terminale
-OSC 52 dizisi gönderilir. Bunu destekleyen terminaller (Windows Terminal, iTerm2,
-kitty, WezTerm, yeni xterm vb.) metni yerel panoya alır. Kopyalama başarısız olursa
-komut detay penceresinde gösterilir.
+**Copy to clipboard (`c`)**: on Windows the system clipboard is used. On Linux,
+`wl-copy`, `xclip` and `xsel` are tried in order. If none is available (e.g. over SSH),
+an OSC 52 sequence is sent to the terminal. Terminals that support it (Windows Terminal,
+iTerm2, kitty, WezTerm, recent xterm, etc.) put the text on the local clipboard. If
+copying fails, the command is shown in the detail window.
 
-### Matrix görünümü
+### Matrix view
 
-`m` ile açılır: satırlar paketlerin en yeni sürümleri, sütunlar profillerdir.
+Opened with `m`: rows are the newest versions of packages, columns are profiles.
 
-![matrix görünümü](docs/matrix.png)
+![matrix view](docs/matrix.png)
 
-- `✓` en az bir binary var (yanındaki sayı eşleşen binary sayısıdır; ör. shared + static).
-- `✗` binary yok.
-- `?` eşleşen yok ama ayarları bilinmeyen binary'ler var, kesin bir şey söylenemiyor.
-- `w` `l` `r` `d` sütunları (profilleri), `/` satırları (paketleri) filtreler.
-- `←` `→` ile profil seçin; `Enter` seçili paketi o profile filtrelenmiş olarak açar.
+- `✓` at least one binary exists (the number next to it is the count of matching binaries, e.g. shared + static).
+- `✗` no binary.
+- `?` no match, but there are binaries with unknown settings, so nothing certain can be said.
+- `w` `l` `r` `d` filter the columns (profiles), `/` filters the rows (packages).
+- Select a profile with `←` `→`; `Enter` opens the selected package filtered to that profile.
 
-## Komut satırı
+## Command line
 
 ```text
-shelf                                  etkileşimli arayüz
-shelf list [filtre]                    paketler ve sürümleri
-shelf show <ad>[/<sürüm>[@user/channel]]   binary tablosu
-shelf matrix [paket-filtresi]          paket × profil tablosu
-shelf config init | show               yapılandırma
-shelf --version                        sürüm bilgisi
+shelf                                      interactive interface
+shelf list [filter]                        packages and their versions
+shelf show <name>[/<version>[@user/channel]]   binary table
+shelf matrix [package-filter]              package × profile table
+shelf config init | show                   configuration
+shelf --version                            version information
 ```
 
-`show` ve `matrix` filtreleri (büyük/küçük harf duyarsız, önek eşleşmesi):
+Filters for `show` and `matrix` (case-insensitive, prefix match):
 
-| Bayrak | Örnek | Not |
+| Flag | Example | Note |
 | --- | --- | --- |
-| `--os` | `--os win` | `Windows` ile eşleşir |
+| `--os` | `--os win` | matches `Windows` |
 | `--arch` | `--arch armv8` | |
-| `--compiler` | `--compiler gcc12`, `--compiler msvc` | derleyici + sürüm |
-| `--build` | `--build rel` | `Release` ile eşleşir |
-| `--profile` | `--profile x86_64-release` | profil adının bir parçası |
+| `--compiler` | `--compiler gcc12`, `--compiler msvc` | compiler + version |
+| `--build` | `--build rel` | matches `Release` |
+| `--profile` | `--profile x86_64-release` | part of the profile name |
 
-`matrix` komutunda bu bayraklar sütunları (profilleri) seçer. Ek seçenekler:
-`show --all-revisions` tüm recipe revision'ları, `matrix --all-versions` her sürümü ayrı satırda gösterir.
+For `matrix`, these flags select the columns (profiles). Extra options:
+`show --all-revisions` shows all recipe revisions, `matrix --all-versions` shows each version on its own row.
 
-Örnekler:
+Examples:
 
 ```sh
 shelf show zlib/1.3.1 --os win --build release
@@ -215,159 +224,157 @@ shelf matrix --build Release
 shelf list --json | jq '.[].name'
 ```
 
-Tüm komutlarda geçerli bayraklar:
+Flags valid for all commands:
 
-| Bayrak | İşlev |
+| Flag | Action |
 | --- | --- |
-| `--json` | Makine tarafından okunabilir çıktı |
-| `--ascii` | `✓/✗` yerine `+/-`, kutu çizgileri yerine ASCII (eski Windows konsolu için) |
-| `--no-color` | Renkleri kapatır (`NO_COLOR` ortam değişkeni de desteklenir) |
+| `--json` | Machine-readable output |
+| `--ascii` | `+/-` instead of `✓/✗`, ASCII instead of box drawing (for old Windows consoles) |
+| `--no-color` | Disables colors (the `NO_COLOR` environment variable is also supported) |
 
-Çıktı bir dosyaya veya pipe'a yönlendirildiğinde renkler otomatik kapanır.
+Colors are turned off automatically when output goes to a file or a pipe.
 
-### Çıkış kodları
+### Exit codes
 
-| Kod | Anlam |
+| Code | Meaning |
 | --- | --- |
-| `0` | Başarılı |
-| `1` | Sonuç yok (eşleşen paket/binary yok) veya beklenmeyen hata |
-| `2` | Yapılandırma veya kimlik doğrulama hatası (eksik URL, 401/403 vb.) |
+| `0` | Success |
+| `1` | No results (no matching package/binary) or an unexpected error |
+| `2` | Configuration or authentication error (missing URL, 401/403, etc.) |
 
-## Profil eşleştirme
+## Profile matching
 
-`profiles_dir` altındaki her dosya bir Conan profili olarak okunur (alt klasörler
-dahil, gizli dosyalar hariç) ve `[settings]` bölümü kullanılır.
+Every file under `profiles_dir` is read as a Conan profile (including subfolders,
+excluding hidden files), and its `[settings]` section is used.
 
-- `include(...)` satırları çözülür; profildeki değerler dahil edilenleri ezer.
-- `zlib/*:build_type=Debug` gibi pakete özel ayarlar yok sayılır.
-- Jinja şablon satırları (`{{ }}`, `{% %}`) desteklenmez; atlanır ve uyarı verilir.
+- `include(...)` lines are resolved; values in the profile override included ones.
+- Package-specific settings such as `zlib/*:build_type=Debug` are ignored.
+- Jinja template lines (`{{ }}`, `{% %}`) are not supported; they are skipped with a warning.
 
-Bir binary, profildeki **her** setting ile eşleşiyorsa (büyük/küçük harf duyarsız)
-o profille etiketlenir. Binary'de hiç bulunmayan bir setting uyumlu sayılır: Conan,
-tarifin kullanmadığı ayarları (ör. C kütüphanelerinde `compiler.cppstd`) package
-ID'den çıkarır. Settings'i olmayan header-only paketler tüm profillere uyar.
-Birden fazla profil uyarsa en çok ortak ayarı olan seçilir.
+A binary is labeled with a profile if it matches **every** setting in the profile
+(case-insensitive). A setting the binary does not have at all counts as compatible:
+Conan removes settings a recipe does not use (e.g. `compiler.cppstd` for C libraries)
+from the package ID. Header-only packages without settings match every profile.
+If several profiles match, the one with the most settings in common is chosen.
 
-Önerilen profil adı düzeni: `os-derleyici-mimari-buildtype`, örneğin
-`linux-gcc12-x86_64-release`, `win-msvc194-x64-release`. Eşleşen profil yoksa kısa
-bir özet gösterilir: `Linux_x86_64_gcc12_Release`.
+Suggested profile naming: `os-compiler-arch-buildtype`, for example
+`linux-gcc12-x86_64-release`, `win-msvc194-x64-release`. If no profile matches, a short
+summary is shown: `Linux_x86_64_gcc12_Release`.
 
-## Binary bilgisinin kaynağı
+## Where binary information comes from
 
-Binary'lerin OS / mimari / derleyici bilgisi iki yerden okunabilir:
+A binary's OS / architecture / compiler information can be read from two places:
 
-1. **Artifactory property'leri** (`conan.settings.*`, `conan.options.*`): AQL
-   sorgusuyla birlikte gelir, ek istek gerekmez.
-2. **`conaninfo.txt`**: her binary'nin yanında duran, Conan'ın kendi yazdığı dosya.
-   Kesin bilgi içerir ama binary başına bir indirme gerektirir.
+1. **Artifactory properties** (`conan.settings.*`, `conan.options.*`): returned with
+   the AQL query, no extra request needed.
+2. **`conaninfo.txt`**: the file Conan writes next to each binary. It is exact but
+   needs one download per binary.
 
-`metadata_source` ayarı:
+The `metadata_source` setting:
 
-| Değer | Davranış |
+| Value | Behavior |
 | --- | --- |
-| `auto` (varsayılan) | Property'ler kullanılır; property'si olmayan binary'ler için `conaninfo.txt` indirilir. |
-| `properties` | Yalnızca property'ler; eksikse binary "bilinmiyor" olarak kalır. |
-| `conaninfo` | Her binary için `conaninfo.txt` okunur. |
+| `auto` (default) | Properties are used; `conaninfo.txt` is downloaded for binaries without properties. |
+| `properties` | Properties only; if missing, the binary stays "unknown". |
+| `conaninfo` | `conaninfo.txt` is read for every binary. |
 
-İndirilen `conaninfo.txt` dosyaları kullanıcı önbelleğinde saklanır
-(Linux'ta `~/.cache/shelf/conaninfo`, Windows'ta `%LocalAppData%\shelf\conaninfo`).
-Package revision içerikten hesaplandığı için önbellek hiçbir zaman eskimez;
-silmek güvenlidir.
+Downloaded `conaninfo.txt` files are cached in the user cache
+(`~/.cache/shelf/conaninfo` on Linux, `%LocalAppData%\shelf\conaninfo` on Windows).
+Since the package revision is computed from the content, the cache never goes stale
+and is safe to delete.
 
-## Gerçek ortamda doğrulama
+## Verifying against a real server
 
-Artifactory'nin property adları ve depolama düzeni kuruluma göre farklı olabilir.
-İki gizli tanılama komutu bunu kontrol etmeye yarar:
+Artifactory property names and storage layout can differ between installations.
+Two hidden diagnostic commands help check this:
 
 ```sh
-shelf debug ping                                 # sunucuya erişim + her repo için yetki
-shelf debug aql --limit 3 --out ornek.json       # ham AQL yanıtı (token içermez)
+shelf debug ping                                 # server access + permissions per repo
+shelf debug aql --limit 3 --out sample.json      # raw AQL response (contains no token)
 shelf debug aql --name conaninfo.txt --limit 3
 shelf debug aql --query 'items.find({"repo":"conan-local"}).include("name","path").limit(10)'
 ```
 
-Varsayılan beklentiler `internal/conan/layout.go` dosyasında tek yerde tanımlıdır:
+The default expectations are defined in one place, `internal/conan/layout.go`:
 
 ```text
-Path düzeni : {user}/{name}/{version}/{channel}/{rrev}/package/{pkgid}/{prev}
-              (user/channel yoksa "_")
-Dosyalar    : conan_package.tgz, conaninfo.txt
+Path layout : {user}/{name}/{version}/{channel}/{rrev}/package/{pkgid}/{prev}
+              ("_" when there is no user/channel)
+Files       : conan_package.tgz, conaninfo.txt
 Recipe      : {user}/{name}/{version}/{channel}/{rrev}/export/conanfile.py
-Property'ler: conan.package.name, conan.package.version, conan.package.user,
+Properties  : conan.package.name, conan.package.version, conan.package.user,
               conan.package.channel, conan.settings.*, conan.options.*
 ```
 
-Gerçek ortam farklıysa yalnızca bu dosyadaki sabitleri değiştirmek yeterlidir.
-Path düzenine uymayan öğeler atlanır ve uyarı olarak listelenir.
+If your server differs, changing the constants in that file is enough.
+Items that do not fit the path layout are skipped and listed as warnings.
 
-Büyük repolarda AQL sonuçları 1000'lik sayfalar halinde alınır (Artifactory'nin
-yönetici olmayan kullanıcılar için varsayılan sonuç sınırı). Sayfalama, boş bir
-sayfa gelene kadar sürer; sunucu sınırı property satırlarına uygulasa da (sayfa
-başına 1000'den az öğe) hiçbir öğe atlanmaz.
+On large repos, AQL results are fetched in pages of 1000 (Artifactory's default result
+limit for non-admin users). Paging continues until an empty page arrives, so no item is
+skipped even if the server applies the limit to property rows (fewer than 1000 items
+per page).
 
-Bir sürümün "en yeni" recipe revision'ı, recipe dosyasının (`conanfile.py`)
-Artifactory'ye yüklenme tarihine göre seçilir. Recipe dosyası bulunamazsa
-revision'ın en son yüklenen binary'sinin tarihi kullanılır.
+A version's "newest" recipe revision is chosen by the upload date of the recipe file
+(`conanfile.py`) to Artifactory. If the recipe file is not found, the date of the
+revision's most recently uploaded binary is used.
 
-Aynı binary birden fazla repoda varsa (ör. promote edilmiş paketler) bir kez
-listelenir.
+If the same binary exists in more than one repo (e.g. promoted packages), it is listed once.
 
-## Geliştirme
+## Development
 
-Gereksinim: Go 1.24+. CGO kullanılmaz.
+Requirement: Go 1.24+. CGO is not used.
 
 ```sh
 make build      # bin/shelf
 make test
-make lint       # golangci-lint v2 gerekir
-make release    # dist/ altına linux .tar.gz, windows .zip arşivleri + SHA256SUMS
+make lint       # requires golangci-lint v2
+make release    # linux .tar.gz, windows .zip archives + SHA256SUMS under dist/
 ```
 
-Windows'ta aynı hedefler `build.ps1` ile çalışır: `.\build.ps1 build|test|lint|release`.
+On Windows the same targets run with `build.ps1`: `.\build.ps1 build|test|lint|release`.
 
-Sunucu olmadan, örnek verilerle çalıştırmak için gizli `--fixture` bayrağı:
+To run with sample data and no server, use the hidden `--fixture` flag:
 
 ```sh
 go run ./cmd/shelf --fixture testdata/aql.json            # TUI
 go run ./cmd/shelf --fixture testdata/aql.json matrix
 ```
 
-Fixture klasöründeki `profiles/` profil klasörü olarak, `files/` ise
-`conaninfo.txt` kaynağı olarak kullanılır. `shelf debug aql --out` çıktısı da
-doğrudan fixture olarak kullanılabilir. Örnek veriler `testdata/gen_fixture.py`
-ile yeniden üretilebilir.
+The fixture folder's `profiles/` is used as the profile folder and `files/` as the
+`conaninfo.txt` source. Output of `shelf debug aql --out` can also be used directly
+as a fixture. The sample data can be regenerated with `testdata/gen_fixture.py`.
 
-Proje yapısı:
+Project layout:
 
 ```text
-cmd/shelf            giriş noktası
-internal/config      config dosyası, ortam değişkenleri, bayraklar
-internal/artifactory HTTP istemcisi, AQL, fixture kaynağı
-internal/conan       path düzeni, model, conaninfo, profil eşleştirme, matrix
-internal/cli         cobra komutları, tablo ve JSON çıktısı
-internal/tui         Bubble Tea arayüzü
-internal/clipboard   pano (Win32 API, xclip/xsel/wl-copy, OSC 52)
-testdata             örnek AQL yanıtı, profiller, conaninfo dosyaları
+cmd/shelf            entry point
+internal/config      config file, environment variables, flags
+internal/artifactory HTTP client, AQL, fixture source
+internal/conan       path layout, model, conaninfo, profile matching, matrix
+internal/cli         cobra commands, table and JSON output
+internal/tui         Bubble Tea interface
+internal/clipboard   clipboard (Win32 API, xclip/xsel/wl-copy, OSC 52)
+testdata             sample AQL response, profiles, conaninfo files
 ```
 
-Değişiklik geçmişi [CHANGELOG.md](CHANGELOG.md) dosyasındadır ve commit mesajlarından
-[git-cliff](https://git-cliff.org) ile üretilir (`cliff.toml`). Yeni sürümden önce:
+The change history is in [CHANGELOG.md](CHANGELOG.md) and is generated from commit
+messages with [git-cliff](https://git-cliff.org) (`cliff.toml`). Before a new release:
 
 ```sh
-git cliff --tag v0.2.0 -o CHANGELOG.md     # yeni sürümün bölümünü ekler
+git cliff --tag v0.2.0 -o CHANGELOG.md     # adds the section for the new version
 git commit -am "docs: changelog for v0.2.0"
 ```
 
-Release açıklaması da aynı yapılandırmayla, etiketin bölümünden otomatik üretilir.
-Var olan bir release'in açıklamasını yeniden üretmek için Actions sekmesinden
-`release-notes` iş akışını etiket adıyla çalıştırın.
+Release notes are generated automatically from the tag's section with the same
+configuration. To regenerate the notes of an existing release, run the
+`release-notes` workflow from the Actions tab with the tag name.
 
-Sürüm yayınlamak için bir `v*` etiketi gönderin (ör. `git tag v0.1.0 && git push origin v0.1.0`);
-GitHub Actions binary'leri derleyip arşivler (`tools/pack`) ve release'e ekler.
-Arşivleri hem `make release` hem `build.ps1 release` aynı araçla üretir; Linux
-binary'si Windows'ta paketlense bile çalıştırma iznini korur. Sürüm bilgisi `-ldflags` ile
-gömülür ve `shelf --version` ile görülür.
+To publish a release, push a `v*` tag (e.g. `git tag v0.1.0 && git push origin v0.1.0`).
+GitHub Actions builds the binaries, packs them (`tools/pack`) and attaches them to the
+release. Both `make release` and `build.ps1 release` produce the archives with the same
+tool; the Linux binary keeps its executable bit even when packed on Windows. The version
+is embedded with `-ldflags` and shown by `shelf --version`.
 
-## Lisans
+## License
 
-[LICENSE](LICENSE) dosyasına bakın.
+MIT. See [LICENSE](LICENSE).
