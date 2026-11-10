@@ -97,7 +97,7 @@ Bir komut hakkında ayrıntı için "{{.CommandPath}} [komut] --help" kullanın.
 	"Authentication method: token or password": "Kimlik doğrulama yöntemi: token veya password",
 	"Binaries": "Binary'ler",
 	"Browse Conan 2 packages in Artifactory from the terminal":                          "Artifactory'deki Conan 2 paketlerini terminalden gezin",
-	"Cancelled, nothing was saved.":                                                     "İptal edildi, hiçbir şey kaydedilmedi.",
+	"Canceled, nothing was saved.":                                                     "İptal edildi, hiçbir şey kaydedilmedi.",
 	"Cannot copy to the clipboard; select the command in the detail window and copy it": "Panoya kopyalanamadı; komutu detay penceresinden seçip kopyalayın",
 	"Conan profiles folder (default: ~/.conan2/profiles)":                               "Conan profil klasörü (varsayılan: ~/.conan2/profiles)",
 	"Conan profiles folder":                                                             "Conan profil klasörü",

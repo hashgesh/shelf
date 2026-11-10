@@ -282,7 +282,7 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	if !ok {
-		fmt.Fprintln(out, i18n.T("Cancelled, nothing was saved."))
+		fmt.Fprintln(out, i18n.T("Canceled, nothing was saved."))
 		return nil
 	}
 	if err := config.Save(path, &next); err != nil {
