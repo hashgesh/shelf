@@ -39,11 +39,12 @@ type LoadResult struct {
 	Warnings []Warning
 }
 
-// Load fetches all package items with one (paged) AQL search, builds the
+// Load fetches all package and recipe items with one (paged) AQL search, builds the
 // catalog, fills missing metadata from conaninfo.txt as configured and
 // matches profiles.
 func Load(ctx context.Context, src Source, opts LoadOptions) (*LoadResult, error) {
-	items, err := src.SearchItems(ctx, artifactory.ItemsQuery{Repos: opts.Repos, Names: []string{PackageFile}})
+	// Recipe files come along only to date the recipe revisions.
+	items, err := src.SearchItems(ctx, artifactory.ItemsQuery{Repos: opts.Repos, Names: []string{PackageFile, RecipeFile}})
 	if err != nil {
 		return nil, err
 	}

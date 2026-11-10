@@ -17,6 +17,10 @@ const (
 	ConaninfoFile = "conaninfo.txt"
 )
 
+// RecipeFile is a file every recipe revision has exactly once, in its export
+// folder. Its upload time dates the recipe revision.
+const RecipeFile = "conanfile.py"
+
 // EmptyField is how Artifactory stores a missing user or channel in paths.
 const EmptyField = "_"
 
@@ -24,6 +28,10 @@ const EmptyField = "_"
 // repository root. Placeholders: {user} {name} {version} {channel} {rrev}
 // {pkgid} {prev}. Every other segment must match literally.
 const PathLayout = "{user}/{name}/{version}/{channel}/{rrev}/package/{pkgid}/{prev}"
+
+// RecipeLayout is the folder holding RecipeFile, with the same placeholders
+// (without {pkgid} and {prev}).
+const RecipeLayout = "{user}/{name}/{version}/{channel}/{rrev}/export"
 
 // Property keys Artifactory attaches to Conan artifacts.
 const (
@@ -67,6 +75,10 @@ var placeholderRe = regexp.MustCompile(`^\{(user|name|version|channel|rrev|pkgid
 // NewLayout compiles a template. Each of {name} {version} {rrev} {pkgid}
 // {prev} must appear exactly once; {user} and {channel} are optional.
 func NewLayout(template string) (*Layout, error) {
+	return newLayout(template, "name", "version", "rrev", "pkgid", "prev")
+}
+
+func newLayout(template string, required ...string) (*Layout, error) {
 	segs := strings.Split(strings.Trim(template, "/"), "/")
 	var pattern strings.Builder
 	pattern.WriteString("^")
@@ -93,7 +105,7 @@ func NewLayout(template string) (*Layout, error) {
 	// The pattern also accepts a trailing file name, so both a revision folder
 	// and a file path inside it parse.
 	pattern.WriteString("(?:/[^/]+)?$")
-	for _, req := range []string{"name", "version", "rrev", "pkgid", "prev"} {
+	for _, req := range required {
 		if !seen[req] {
 			return nil, fmt.Errorf("path düzeni: {%s} eksik", req)
 		}
@@ -112,6 +124,15 @@ func MustLayout(template string) *Layout {
 
 // DefaultLayout is the layout compiled from PathLayout.
 var DefaultLayout = MustLayout(PathLayout)
+
+// recipeLayout parses the folder of a RecipeFile item.
+var recipeLayout = func() *Layout {
+	l, err := newLayout(RecipeLayout, "name", "version", "rrev")
+	if err != nil {
+		panic(err)
+	}
+	return l
+}()
 
 // Template returns the source template.
 func (l *Layout) Template() string { return l.template }
