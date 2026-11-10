@@ -151,16 +151,43 @@ func (w Warning) String() string { return w.Path + ": " + w.Message }
 // path does not match layout are reported as warnings and skipped. Items
 // without settings properties get MetadataSource=SourceNone; the caller may
 // fill them from conaninfo.txt afterwards.
+//
+// RecipeFile items, when present, date the recipe revisions: revisions are
+// ordered by when their recipe was uploaded. A revision without one falls
+// back to the upload time of its newest binary, which is only a guess (a
+// binary rebuilt for an old revision makes that revision look new). Dated
+// revisions always sort before undated ones.
+//
+// The same binary (equal package revision) found in several repos is listed
+// once, from the repo that returned it first.
 func BuildCatalog(items []artifactory.Item, layout *Layout) (*Catalog, []Warning) {
 	if layout == nil {
 		layout = DefaultLayout
 	}
 	var warnings []Warning
-	type pkgKey struct{ repo, user, name, version, channel, rrev, pkgid string }
+	type pkgKey struct{ user, name, version, channel, rrev, pkgid string }
 	latest := map[pkgKey]*Binary{}
+	prevs := map[pkgKey]map[string]bool{} // package revisions seen per binary
 	var order []pkgKey
 
+	type verKey struct{ name, version, user, channel string }
+	type revKey struct {
+		verKey
+		rrev string
+	}
+	recipeTime := map[revKey]time.Time{}
+
 	for _, it := range items {
+		if it.Name == RecipeFile {
+			if pi, err := recipeLayout.Parse(it.Path); err == nil {
+				rk := revKey{verKey{pi.Name, pi.Version, pi.User, pi.Channel}, pi.RecipeRevision}
+				// The same revision in several repos: the earliest upload dates it.
+				if t, ok := recipeTime[rk]; !ok || it.Created.Before(t) {
+					recipeTime[rk] = it.Created
+				}
+			}
+			continue
+		}
 		if it.Name != PackageFile {
 			continue
 		}
@@ -171,30 +198,32 @@ func BuildCatalog(items []artifactory.Item, layout *Layout) (*Catalog, []Warning
 			continue
 		}
 		b := binaryFromItem(it, pi)
-		k := pkgKey{it.Repo, b.User, b.Name, b.Version, b.Channel, b.RecipeRevision, b.PackageID}
+		k := pkgKey{b.User, b.Name, b.Version, b.Channel, b.RecipeRevision, b.PackageID}
 		prev, ok := latest[k]
-		switch {
-		case !ok:
+		if !ok {
 			latest[k] = b
+			prevs[k] = map[string]bool{b.PackageRevision: true}
 			order = append(order, k)
-		case b.Created.After(prev.Created):
-			b.OlderRevisions = prev.OlderRevisions + 1
-			latest[k] = b
-		default:
-			prev.OlderRevisions++
+			continue
 		}
+		if prevs[k][b.PackageRevision] {
+			continue // the same binary again, from another repo
+		}
+		prevs[k][b.PackageRevision] = true
+		if b.Created.After(prev.Created) {
+			latest[k] = b
+		}
+	}
+	for k, b := range latest {
+		b.OlderRevisions = len(prevs[k]) - 1
 	}
 
 	cat := &Catalog{}
 	pkgs := map[string]*Package{}
-	type verKey struct{ name, version, user, channel string }
 	vers := map[verKey]*Version{}
-	type revKey struct {
-		verKey
-		rrev string
-	}
 	revs := map[revKey]*Revision{}
-	revCreated := map[*Revision]time.Time{}
+	revCreated := map[*Revision]time.Time{} // newest binary, the fallback date
+	revDated := map[*Revision]time.Time{}   // recipe upload, when known
 
 	for _, k := range order {
 		b := latest[k]
@@ -217,6 +246,9 @@ func BuildCatalog(items []artifactory.Item, layout *Layout) (*Catalog, []Warning
 			r = &Revision{Revision: b.RecipeRevision}
 			revs[rk] = r
 			v.Revisions = append(v.Revisions, r)
+			if t, ok := recipeTime[rk]; ok {
+				revDated[r] = t
+			}
 		}
 		r.Binaries = append(r.Binaries, b)
 		if b.Created.After(revCreated[r]) {
@@ -237,7 +269,16 @@ func BuildCatalog(items []artifactory.Item, layout *Layout) (*Catalog, []Warning
 		})
 		for _, v := range p.Versions {
 			sort.SliceStable(v.Revisions, func(i, j int) bool {
-				return revCreated[v.Revisions[i]].After(revCreated[v.Revisions[j]]) // latest first
+				ri, rj := v.Revisions[i], v.Revisions[j]
+				ti, di := revDated[ri]
+				tj, dj := revDated[rj]
+				switch {
+				case di && dj:
+					return ti.After(tj) // latest first
+				case di != dj:
+					return di
+				}
+				return revCreated[ri].After(revCreated[rj])
 			})
 			for _, r := range v.Revisions {
 				SortBinaries(r.Binaries)
