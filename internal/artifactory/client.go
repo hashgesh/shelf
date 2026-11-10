@@ -15,7 +15,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 // Response size caps, to fail fast instead of exhausting memory.

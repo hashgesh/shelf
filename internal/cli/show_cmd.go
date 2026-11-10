@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/conan"
 )
 
 type showJSON struct {

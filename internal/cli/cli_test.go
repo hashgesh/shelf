@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 type result struct {

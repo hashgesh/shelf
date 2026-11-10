@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/artifactory"
 )
 
 const fixtureDir = "../../testdata"

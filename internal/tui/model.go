@@ -10,7 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/conan"
 )
 
 // Loader fetches the catalog. It is called on start and on every refresh.

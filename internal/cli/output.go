@@ -11,8 +11,8 @@ import (
 	"github.com/muesli/termenv"
 	"golang.org/x/term"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
-	"github.com/halilibrahimonus/shelf/internal/format"
+	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/format"
 )
 
 // styler applies ANSI styles when color is enabled and picks ASCII

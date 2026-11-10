@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 const testToken = "tok-very-secret"
