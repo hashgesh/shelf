@@ -1,7 +1,5 @@
 # shelf
 
-[Türkçe](README.tr.md)
-
 A TUI + CLI for browsing Conan 2 packages in JFrog Artifactory from the terminal.
 The Artifactory UI shows binaries only as hashes. shelf lays them out in a table by
 OS / architecture / compiler / build type, matches binaries to your Conan profiles,
