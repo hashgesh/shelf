@@ -21,7 +21,7 @@ func TestListFixture(t *testing.T) {
 	if r.code != ExitOK {
 		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
 	}
-	for _, want := range []string{"PAKET", "zlib", "1.2.13", "10.2.1@mycompany/stable", "4 paket"} {
+	for _, want := range []string{"PACKAGE", "zlib", "1.2.13", "10.2.1@mycompany/stable", "4 packages"} {
 		if !strings.Contains(r.stdout, want) {
 			t.Errorf("missing %q in:\n%s", want, r.stdout)
 		}
@@ -29,7 +29,7 @@ func TestListFixture(t *testing.T) {
 	if strings.Contains(r.stdout, "\x1b[") {
 		t.Error("color codes written to a non-terminal")
 	}
-	if strings.Contains(r.stderr, "uyarı") {
+	if strings.Contains(r.stderr, "warning") {
 		t.Errorf("unexpected warnings: %s", r.stderr)
 	}
 }
@@ -51,7 +51,7 @@ func TestListFilterAndJSON(t *testing.T) {
 	}
 
 	r = runFixture(t, "list", "nothing-matches")
-	if r.code != ExitNoResult || !strings.Contains(r.stderr, "Paket bulunamadı") {
+	if r.code != ExitNoResult || !strings.Contains(r.stderr, "No packages found") {
 		t.Errorf("got %+v", r)
 	}
 	r = runFixture(t, "list", "nothing-matches", "--json")
@@ -65,7 +65,7 @@ func TestShowFixture(t *testing.T) {
 	if r.code != ExitOK {
 		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
 	}
-	for _, want := range []string{"zlib/1.3.1", "toplam 2", "Diğer sürümler: 1.2.13", "OS", "PROFİL", "win-msvc194-x64-debug", "9 binary"} {
+	for _, want := range []string{"zlib/1.3.1", "newest of 2", "Other versions: 1.2.13", "OS", "PROFILE", "win-msvc194-x64-debug", "9 binaries"} {
 		if !strings.Contains(r.stdout, want) {
 			t.Errorf("missing %q in:\n%s", want, r.stdout)
 		}
@@ -123,11 +123,11 @@ func TestShowConaninfoFallback(t *testing.T) {
 
 func TestShowNoResults(t *testing.T) {
 	r := runFixture(t, "show", "zlib", "--os", "macos")
-	if r.code != ExitNoResult || !strings.Contains(r.stderr, "Eşleşen binary yok") {
+	if r.code != ExitNoResult || !strings.Contains(r.stderr, "No matching binaries") {
 		t.Errorf("got %+v", r)
 	}
 	r = runFixture(t, "show", "unknownpkg")
-	if r.code != ExitNoResult || !strings.Contains(r.stderr, "paket bulunamadı") {
+	if r.code != ExitNoResult || !strings.Contains(r.stderr, "package not found") {
 		t.Errorf("got %+v", r)
 	}
 	r = runFixture(t, "show", "zlib", "--os", "macos", "--json")
@@ -138,11 +138,11 @@ func TestShowNoResults(t *testing.T) {
 
 func TestShowArgErrors(t *testing.T) {
 	r := runFixture(t, "show")
-	if r.code == ExitOK || !strings.Contains(r.stderr, "argüman") {
+	if r.code == ExitOK || !strings.Contains(r.stderr, "arguments") {
 		t.Errorf("got %+v", r)
 	}
 	r = runFixture(t, "show", "zlib/1.0@onlyuser")
-	if r.code == ExitOK || !strings.Contains(r.stderr, "referans geçersiz") {
+	if r.code == ExitOK || !strings.Contains(r.stderr, "invalid reference") {
 		t.Errorf("got %+v", r)
 	}
 }
@@ -159,7 +159,7 @@ func TestMatrixFixture(t *testing.T) {
 	if r.code != ExitOK {
 		t.Fatalf("code=%d stderr=%s", r.code, r.stderr)
 	}
-	for _, want := range []string{"PAKET", "linux-gcc12-armv8-release", "zlib/1.3.1", "+", "-", "4 paket x 5 profil | 6 eksik"} {
+	for _, want := range []string{"PACKAGE", "linux-gcc12-armv8-release", "zlib/1.3.1", "+", "-", "4 packages x 5 profiles | 6 missing"} {
 		if !strings.Contains(r.stdout, want) {
 			t.Errorf("missing %q in:\n%s", want, r.stdout)
 		}
@@ -197,7 +197,7 @@ func TestMatrixJSON(t *testing.T) {
 
 func TestMatrixNoProfiles(t *testing.T) {
 	r := runFixture(t, "--profiles-dir", t.TempDir(), "matrix")
-	if r.code != ExitNoResult || !strings.Contains(r.stderr, "Profil bulunamadı") {
+	if r.code != ExitNoResult || !strings.Contains(r.stderr, "No profiles found") {
 		t.Errorf("got %+v", r)
 	}
 }

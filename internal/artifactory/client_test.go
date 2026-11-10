@@ -208,7 +208,7 @@ func TestInvalidJSON(t *testing.T) {
 	}))
 	defer srv.Close()
 	c, _ := New(testConfig(srv.URL))
-	if _, err := c.AQL(context.Background(), "items.find()"); err == nil || !strings.Contains(err.Error(), "çözümlenemedi") {
+	if _, err := c.AQL(context.Background(), "items.find()"); err == nil || !strings.Contains(err.Error(), "cannot decode") {
 		t.Fatalf("err = %v", err)
 	}
 }
@@ -323,7 +323,7 @@ func TestTimeout(t *testing.T) {
 	cfg.Timeout = 50 * time.Millisecond
 	c, _ := New(cfg)
 	_, err := c.AQL(context.Background(), "items.find()")
-	if err == nil || !strings.Contains(err.Error(), "zaman aşımı") {
+	if err == nil || !strings.Contains(err.Error(), "timed out") {
 		t.Fatalf("err = %v", err)
 	}
 }
@@ -376,7 +376,7 @@ func TestDownload(t *testing.T) {
 		t.Errorf("escaped path = %q", gotPath)
 	}
 
-	if _, err := c.Download(context.Background(), "r", "big.bin"); err == nil || !strings.Contains(err.Error(), "çok büyük") {
+	if _, err := c.Download(context.Background(), "r", "big.bin"); err == nil || !strings.Contains(err.Error(), "too large") {
 		t.Errorf("oversized download err = %v", err)
 	}
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/conan"
 	"github.com/hashgesh/shelf/internal/format"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // styler applies ANSI styles when color is enabled and picks ASCII
@@ -171,9 +172,9 @@ const maxWarnings = 5
 func printWarnings(w io.Writer, st styler, warns []conan.Warning) {
 	for i, wr := range warns {
 		if i == maxWarnings {
-			fmt.Fprintf(w, "%s ... ve %d uyarı daha\n", st.dim("uyarı:"), len(warns)-maxWarnings)
+			fmt.Fprintf(w, i18n.T("%s ... and %d more warnings\n"), st.dim(i18n.T("warning:")), len(warns)-maxWarnings)
 			return
 		}
-		fmt.Fprintf(w, "%s %s\n", st.dim("uyarı:"), wr)
+		fmt.Fprintf(w, "%s %s\n", st.dim(i18n.T("warning:")), wr)
 	}
 }

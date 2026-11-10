@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 type showJSON struct {
@@ -20,11 +21,11 @@ type showJSON struct {
 // filterFlags registers the shared binary filter flags on cmd.
 func filterFlags(cmd *cobra.Command, f *conan.Filter) {
 	fs := cmd.Flags()
-	fs.StringVar(&f.OS, "os", "", "işletim sistemi (önek, ör. win, linux)")
-	fs.StringVar(&f.Arch, "arch", "", "mimari (önek, ör. x86_64, armv8)")
-	fs.StringVar(&f.Compiler, "compiler", "", "derleyici ve sürüm (önek, ör. gcc, gcc12, msvc194)")
-	fs.StringVar(&f.BuildType, "build", "", "build type (önek, ör. Release, Debug)")
-	fs.StringVar(&f.Profile, "profile", "", "eşleşen profil adı (içerir)")
+	fs.StringVar(&f.OS, "os", "", i18n.T("operating system (prefix, e.g. win, linux)"))
+	fs.StringVar(&f.Arch, "arch", "", i18n.T("architecture (prefix, e.g. x86_64, armv8)"))
+	fs.StringVar(&f.Compiler, "compiler", "", i18n.T("compiler and version (prefix, e.g. gcc, gcc12, msvc194)"))
+	fs.StringVar(&f.BuildType, "build", "", i18n.T("build type (prefix, e.g. Release, Debug)"))
+	fs.StringVar(&f.Profile, "profile", "", i18n.T("matching profile name (substring)"))
 }
 
 func (a *app) newShowCmd() *cobra.Command {
@@ -33,10 +34,10 @@ func (a *app) newShowCmd() *cobra.Command {
 		allRevisions bool
 	)
 	cmd := &cobra.Command{
-		Use:   "show <ad>[/<sürüm>[@user/channel]] [bayraklar]",
-		Short: "Bir paketin binary tablosunu göster",
-		Long: "Bir paket sürümünün binary'lerini gösterir. Sürüm verilmezse en yeni sürüm,\n" +
-			"--all-revisions verilmezse en yeni recipe revision kullanılır.",
+		Use:   i18n.T("show <name>[/<version>[@user/channel]] [flags]"),
+		Short: i18n.T("Show the binary table of a package"),
+		Long: i18n.T("Shows the binaries of a package version. Without a version the newest version\n") +
+			i18n.T("is used, and without --all-revisions the newest recipe revision."),
 		Example: "  shelf show zlib\n" +
 			"  shelf show zlib/1.3.1 --os win --build release\n" +
 			"  shelf show fmt/10.2.1@mycompany/stable --json",
@@ -85,31 +86,31 @@ func (a *app) newShowCmd() *cobra.Command {
 			header := st.bold(v.Ref(p.Name))
 			switch {
 			case allRevisions:
-				header += fmt.Sprintf("  (%d recipe revision)", len(v.Revisions))
+				header += fmt.Sprintf(i18n.T("  (%d recipe revisions)"), len(v.Revisions))
 			case len(v.Revisions) > 1:
-				header += fmt.Sprintf("  rrev %s (en yenisi; toplam %d, tümü için --all-revisions)", shortID(rrev), len(v.Revisions))
+				header += fmt.Sprintf(i18n.T("  rrev %s (newest of %d, --all-revisions for all)"), shortID(rrev), len(v.Revisions))
 			default:
 				header += "  rrev " + shortID(rrev)
 			}
 			fmt.Fprintln(out, header)
 			if others := otherVersions(p, v); others != "" {
-				fmt.Fprintln(out, st.dim("Diğer sürümler: "+others))
+				fmt.Fprintln(out, st.dim(i18n.T("Other versions: ")+others))
 			}
 			if !filter.IsZero() {
-				fmt.Fprintln(out, st.dim("Filtre: "+filter.Describe()))
+				fmt.Fprintln(out, st.dim(i18n.T("Filter: ")+filter.Describe()))
 			}
 			fmt.Fprintln(out)
 
 			if len(binaries) == 0 {
-				return noResultError{msg: "Eşleşen binary yok."}
+				return noResultError{msg: i18n.T("No matching binaries.")}
 			}
 			renderBinaries(out, st, binaries, allRevisions)
-			fmt.Fprintf(out, "\n%d binary%s%s\n", len(binaries), st.sep(), s.repoLabel)
+			fmt.Fprintf(out, i18n.T("\n%d binaries%s%s\n"), len(binaries), st.sep(), s.repoLabel)
 			return nil
 		},
 	}
 	filterFlags(cmd, &filter)
-	cmd.Flags().BoolVar(&allRevisions, "all-revisions", false, "tüm recipe revision'ları göster")
+	cmd.Flags().BoolVar(&allRevisions, "all-revisions", false, i18n.T("show all recipe revisions"))
 	return cmd
 }
 
@@ -124,7 +125,7 @@ func otherVersions(p *conan.Package, cur *conan.Version) string {
 }
 
 func renderBinaries(w io.Writer, st styler, bs []*conan.Binary, withRrev bool) {
-	headers := []string{"OS", "ARCH", "COMPILER", "BUILD", "SHARED", "BOYUT", "TARİH", "YÜKLEYEN", "ID", "PROFİL"}
+	headers := []string{"OS", "ARCH", "COMPILER", "BUILD", "SHARED", i18n.T("SIZE"), i18n.T("DATE"), i18n.T("UPLOADED BY"), "ID", i18n.T("PROFILE")}
 	if withRrev {
 		headers = append(headers, "RREV")
 	}

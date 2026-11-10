@@ -14,6 +14,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/artifactory"
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Exit codes.
@@ -61,6 +62,7 @@ type app struct {
 // Execute runs the CLI and returns the process exit code.
 func Execute(info BuildInfo) int {
 	a := &app{stdin: os.Stdin, stdout: os.Stdout, stderr: os.Stderr, lookupEnv: os.LookupEnv}
+	i18n.Detect(a.lookupEnv)
 	return a.run(info, os.Args[1:])
 }
 
@@ -85,7 +87,7 @@ func (a *app) run(info BuildInfo, args []string) int {
 		}
 		return ExitNoResult
 	}
-	fmt.Fprintf(a.stderr, "shelf: hata: %v\n", err)
+	fmt.Fprintf(a.stderr, i18n.T("shelf: error: %v\n"), err)
 	if errors.Is(err, config.ErrInvalid) || errors.Is(err, artifactory.ErrAuth) {
 		return ExitConfig
 	}
@@ -100,10 +102,10 @@ func (e noResultError) Error() string { return e.msg }
 func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 	root := &cobra.Command{
 		Use:   "shelf",
-		Short: "Artifactory'deki Conan 2 paketlerini terminalden gezin",
-		Long: "shelf, JFrog Artifactory'deki Conan 2 paketlerini ve binary'lerini\n" +
-			"okunur şekilde listeler. Parametresiz çalıştırıldığında etkileşimli arayüz açılır.",
-		Version:           fmt.Sprintf("%s (commit %s, derleme %s)", info.Version, info.Commit, info.Date),
+		Short: i18n.T("Browse Conan 2 packages in Artifactory from the terminal"),
+		Long: i18n.T("shelf lists the Conan 2 packages and binaries in JFrog Artifactory in a\n") +
+			i18n.T("readable form. Run without arguments to open the interactive interface."),
+		Version:           fmt.Sprintf(i18n.T("%s (commit %s, built %s)"), info.Version, info.Commit, info.Date),
 		SilenceErrors:     true,
 		SilenceUsage:      true,
 		Args:              noArgs,
@@ -116,24 +118,24 @@ func (a *app) newRootCmd(info BuildInfo) *cobra.Command {
 
 	pf := root.PersistentFlags()
 	f := &a.flags
-	pf.StringVar(&f.configPath, "config", "", "config dosyası (varsayılan: platforma özgü konum, $"+config.EnvConfig+")")
-	pf.StringVar(&f.url, "url", "", "Artifactory URL'si ($"+config.EnvURL+")")
-	pf.StringVar(&f.user, "user", "", "kullanıcı adı ($"+config.EnvUser+")")
-	pf.StringVar(&f.token, "token", "", "access token; süreç listesinde görünür, $"+config.EnvToken+" tercih edin")
-	pf.StringSliceVar(&f.repos, "repo", nil, "repo adı, birden fazla verilebilir ($"+config.EnvRepos+", virgülle ayrılmış)")
-	pf.StringVar(&f.profilesDir, "profiles-dir", "", "Conan profil klasörü (varsayılan: ~/.conan2/profiles)")
-	pf.BoolVar(&f.insecure, "insecure", false, "TLS sertifika doğrulamasını kapat")
-	pf.DurationVar(&f.timeout, "timeout", 0, "istek zaman aşımı (örnek: 30s)")
-	pf.BoolVar(&f.json, "json", false, "çıktıyı JSON olarak yaz")
-	pf.BoolVar(&f.ascii, "ascii", false, "✓/✗ yerine +/- gibi ASCII karakterler kullan")
-	pf.BoolVar(&f.noColor, "no-color", false, "renkleri kapat")
-	pf.BoolP("help", "h", false, "yardımı göster")
-	pf.StringVar(&f.fixture, "fixture", "", "sunucu yerine AQL yanıt dosyası kullan (geliştirme için)")
+	pf.StringVar(&f.configPath, "config", "", i18n.T("config file (default: platform-specific location, $")+config.EnvConfig+")")
+	pf.StringVar(&f.url, "url", "", i18n.T("Artifactory URL ($")+config.EnvURL+")")
+	pf.StringVar(&f.user, "user", "", i18n.T("user name ($")+config.EnvUser+")")
+	pf.StringVar(&f.token, "token", "", i18n.T("access token; visible in the process list, prefer $")+config.EnvToken+i18n.T(" instead"))
+	pf.StringSliceVar(&f.repos, "repo", nil, i18n.T("repo name, may be repeated ($")+config.EnvRepos+i18n.T(", comma-separated)"))
+	pf.StringVar(&f.profilesDir, "profiles-dir", "", i18n.T("Conan profiles folder (default: ~/.conan2/profiles)"))
+	pf.BoolVar(&f.insecure, "insecure", false, i18n.T("disable TLS certificate verification"))
+	pf.DurationVar(&f.timeout, "timeout", 0, i18n.T("request timeout (e.g. 30s)"))
+	pf.BoolVar(&f.json, "json", false, i18n.T("write the output as JSON"))
+	pf.BoolVar(&f.ascii, "ascii", false, i18n.T("use ASCII characters such as +/- instead of ✓/✗"))
+	pf.BoolVar(&f.noColor, "no-color", false, i18n.T("disable colors"))
+	pf.BoolP("help", "h", false, i18n.T("show help"))
+	pf.StringVar(&f.fixture, "fixture", "", i18n.T("read an AQL response file instead of a server (for development)"))
 	_ = pf.MarkHidden("fixture")
-	root.Flags().BoolP("version", "v", false, "sürüm bilgisini göster")
+	root.Flags().BoolP("version", "v", false, i18n.T("show version information"))
 
 	root.SetFlagErrorFunc(func(c *cobra.Command, err error) error {
-		return fmt.Errorf("%w (yardım için: %s --help)", err, c.CommandPath())
+		return fmt.Errorf(i18n.T("%w (see: %s --help)"), err, c.CommandPath())
 	})
 	root.AddCommand(a.newListCmd(), a.newShowCmd(), a.newMatrixCmd(), a.newConfigCmd(), a.newDebugCmd())
 	root.SetHelpCommand(newHelpCmd())

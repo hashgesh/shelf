@@ -8,6 +8,7 @@ import (
 	"github.com/mattn/go-runewidth"
 
 	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // matrix returns the packages × profiles matrix for the current search and
@@ -127,7 +128,7 @@ func (m model) matrixView(h int) string {
 	r0, r1 := m.mxRows.window(rows)
 
 	var head strings.Builder
-	head.WriteString(m.st.fit("  Paket", refW))
+	head.WriteString(m.st.fit(i18n.T("  Package"), refW))
 	for c := c0; c < c1; c++ {
 		head.WriteString(gap + m.st.fit(mx.Profiles[c].Name, colW))
 	}
@@ -169,9 +170,9 @@ func (m model) matrixView(h int) string {
 		lines = append(lines, b.String())
 	}
 	if len(mx.Rows) == 0 || len(mx.Profiles) == 0 {
-		msg := "  Gösterilecek paket yok"
+		msg := i18n.T("  No packages to show")
 		if len(mx.Profiles) == 0 {
-			msg = "  Profil yok (profiles_dir ayarını kontrol edin) veya filtre tüm profilleri eledi"
+			msg = i18n.T("  No profiles (check the profiles_dir setting), or the filter removed every profile")
 		}
 		lines = append(lines, m.st.dim.Render(m.st.fit(msg, innerW)))
 	}
@@ -180,11 +181,12 @@ func (m model) matrixView(h int) string {
 	}
 	more := ""
 	if c0 > 0 || c1 < len(mx.Profiles) {
-		more = fmt.Sprintf("%ssütun %d-%d / %d (←→)", m.st.dot(), c0+1, c1, len(mx.Profiles))
+		more = fmt.Sprintf(i18n.T("%scolumns %d-%d / %d (←→)"), m.st.dot(), c0+1, c1, len(mx.Profiles))
 	}
-	legend := fmt.Sprintf("%s var  %s yok  ? belirsiz%s%d paket%s%d profil%s%d eksik%s",
-		m.cellSymbol(conan.CellAvailable), m.cellSymbol(conan.CellMissing), m.st.dot(),
-		len(mx.Rows), m.st.times(), len(mx.Profiles), m.st.dot(), mx.Missing(), more)
+	// The column position comes before the counts so a narrow fit keeps it.
+	legend := fmt.Sprintf(i18n.T("%s available  %s missing  ? unclear"),
+		m.cellSymbol(conan.CellAvailable), m.cellSymbol(conan.CellMissing)) + more + m.st.dot() +
+		fmt.Sprintf(i18n.T("%d packages%s%d profiles%s%d missing"), len(mx.Rows), m.st.times(), len(mx.Profiles), m.st.dot(), mx.Missing())
 	lines = append(lines, m.st.dim.Render(m.st.fit("  "+legend, innerW)))
 	return m.panel("Matrix", lines, w, h, true)
 }

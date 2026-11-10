@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 type listVersionJSON struct {
@@ -26,10 +28,10 @@ type listPackageJSON struct {
 
 func (a *app) newListCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "list [filtre]",
-		Short: "Paketleri ve sürümlerini listele",
-		Long: "Paketleri ve sürümlerini listeler. Filtre verilirse adında bu metni\n" +
-			"içeren paketler gösterilir. BINARY sütunu en yeni recipe revision'daki binary sayısıdır.",
+		Use:   i18n.T("list [filter]"),
+		Short: i18n.T("List packages and their versions"),
+		Long: i18n.T("Lists packages and their versions. With a filter, only packages whose name\n") +
+			i18n.T("contains the text are shown. The BINARY column counts binaries in the newest recipe revision."),
 		Example: "  shelf list\n  shelf list zlib\n  shelf list --json",
 		Args:    maxArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -73,7 +75,7 @@ func (a *app) newListCmd() *cobra.Command {
 				}
 			} else if len(pkgs) > 0 {
 				st := a.newStyler(cmd.OutOrStdout())
-				t := &table{headers: []string{"PAKET", "SÜRÜM", "REVİZYON", "BINARY", "SON YÜKLEME"}}
+				t := &table{headers: []string{i18n.T("PACKAGE"), i18n.T("VERSION"), i18n.T("REVISION"), "BINARY", i18n.T("LAST UPLOAD")}}
 				for _, p := range pkgs {
 					for i, v := range p.Versions {
 						name := p.Name
@@ -94,10 +96,10 @@ func (a *app) newListCmd() *cobra.Command {
 					return s
 				}
 				t.render(cmd.OutOrStdout(), st)
-				fmt.Fprintf(cmd.OutOrStdout(), "\n%d paket%s%s\n", len(pkgs), st.sep(), s.repoLabel)
+				fmt.Fprintf(cmd.OutOrStdout(), i18n.T("\n%d packages%s%s\n"), len(pkgs), st.sep(), s.repoLabel)
 			}
 			if len(pkgs) == 0 {
-				return noResultError{msg: "Paket bulunamadı."}
+				return noResultError{msg: i18n.T("No packages found.")}
 			}
 			return nil
 		},

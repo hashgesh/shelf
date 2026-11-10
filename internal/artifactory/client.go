@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Response size caps, to fail fast instead of exhausting memory.
@@ -32,9 +33,9 @@ const DefaultPageSize = 1000
 
 var (
 	// ErrAuth is returned for 401/403 responses.
-	ErrAuth = errors.New("kimlik doğrulama başarısız")
+	ErrAuth = i18n.Error("authentication failed")
 	// ErrNotFound is returned for 404 responses.
-	ErrNotFound = errors.New("bulunamadı")
+	ErrNotFound = i18n.Error("not found")
 )
 
 // HTTPError is a non-2xx response.
@@ -114,7 +115,7 @@ func New(cfg *config.Config, opts ...Option) (*Client, error) {
 func BaseURL(raw string) (*url.URL, error) {
 	u, err := url.Parse(strings.TrimRight(raw, "/"))
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-		return nil, fmt.Errorf("%w: url geçersiz: %q", config.ErrInvalid, raw)
+		return nil, fmt.Errorf(i18n.T("%w: invalid url: %q"), config.ErrInvalid, raw)
 	}
 	u.User = nil
 	u.RawQuery, u.Fragment = "", ""
@@ -181,10 +182,10 @@ func (c *Client) do(req *http.Request, limit int64) ([]byte, error) {
 	}
 	body, err := io.ReadAll(io.LimitReader(resp.Body, limit+1))
 	if err != nil {
-		return nil, fmt.Errorf("%s %s: yanıt okunamadı: %w", req.Method, redactURL(req.URL), err)
+		return nil, fmt.Errorf(i18n.T("%s %s: cannot read response: %w"), req.Method, redactURL(req.URL), err)
 	}
 	if int64(len(body)) > limit {
-		return nil, fmt.Errorf("%s %s: yanıt çok büyük (> %d bayt)", req.Method, redactURL(req.URL), limit)
+		return nil, fmt.Errorf(i18n.T("%s %s: response too large (> %d bytes)"), req.Method, redactURL(req.URL), limit)
 	}
 	return body, nil
 }
@@ -194,13 +195,13 @@ func friendlyTransportError(req *http.Request, err error) error {
 	var verifyErr *tls.CertificateVerificationError
 	var hostErr x509.HostnameError
 	if errors.As(err, &unknownCA) || errors.As(err, &verifyErr) || errors.As(err, &hostErr) {
-		return fmt.Errorf("%s: TLS sertifikası doğrulanamadı (self-signed ise insecure_tls: true veya --insecure kullanın): %w",
+		return fmt.Errorf(i18n.T("%s: TLS certificate verification failed (for a self-signed certificate use insecure_tls: true or --insecure): %w"),
 			redactURL(req.URL), err)
 	}
 	if errors.Is(err, context.DeadlineExceeded) {
-		return fmt.Errorf("%s: zaman aşımı (timeout ayarını artırmayı deneyin): %w", redactURL(req.URL), err)
+		return fmt.Errorf(i18n.T("%s: timed out (try increasing the timeout setting): %w"), redactURL(req.URL), err)
 	}
-	return fmt.Errorf("sunucuya bağlanılamadı: %w", err)
+	return fmt.Errorf(i18n.T("cannot connect to server: %w"), err)
 }
 
 func redactURL(u *url.URL) string {
@@ -237,7 +238,7 @@ func (c *Client) AQL(ctx context.Context, query string) (*Result, error) {
 	}
 	var res Result
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&res); err != nil {
-		return nil, fmt.Errorf("AQL yanıtı çözümlenemedi: %w", err)
+		return nil, fmt.Errorf(i18n.T("cannot decode AQL response: %w"), err)
 	}
 	return &res, nil
 }
@@ -246,7 +247,7 @@ func (c *Client) AQL(ctx context.Context, query string) (*Result, error) {
 // item. Rows of the same item split across a page boundary are merged.
 func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) {
 	if len(q.Repos) == 0 {
-		return nil, fmt.Errorf("%w: en az bir repo gerekli", config.ErrInvalid)
+		return nil, fmt.Errorf(i18n.T("%w: at least one repo is required"), config.ErrInvalid)
 	}
 	if c.pageSize <= 0 {
 		q.Offset, q.Limit = 0, 0

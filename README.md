@@ -8,7 +8,8 @@ and shows in a matrix which package is missing for which profile.
 It runs as a single file on Windows and Linux. No installation, runtime or internet
 access is needed.
 
-The interface text is in Turkish.
+The interface is in English or Turkish, picked from the system language
+(see [Language](#language)).
 
 ![shelf main screen](docs/tui.png)
 
@@ -119,6 +120,13 @@ On Linux the config file is written readable only by its owner (`0600`).
 `CONAN_HOME` only sets the default for `profiles_dir`. A folder given in the config
 file or with `--profiles-dir` takes precedence. `config init` does not write the
 default folder to the file, so shelf follows `CONAN_HOME` when it changes.
+
+### Language
+
+shelf shows its interface in Turkish when the system language is Turkish and in
+English otherwise. On Linux it reads `LC_ALL`, `LC_MESSAGES` and `LANG`; on Windows
+it uses the user's display language. Set `SHELF_LANG=en` or `SHELF_LANG=tr` to force
+one. `--json` output is the same in both languages.
 
 ## Interactive interface (TUI)
 

@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // fileConfig mirrors config.yaml. Secrets are plain strings here because this
@@ -30,9 +32,9 @@ func readFile(path string) (*fileConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return nil, fmt.Errorf("%w: config dosyası bulunamadı: %s: %w", ErrInvalid, path, err)
+			return nil, fmt.Errorf(i18n.T("%w: config file not found: %s: %w"), ErrInvalid, path, err)
 		}
-		return nil, fmt.Errorf("%w: config dosyası okunamadı: %w", ErrInvalid, err)
+		return nil, fmt.Errorf(i18n.T("%w: cannot read config file: %w"), ErrInvalid, err)
 	}
 	var fc fileConfig
 	dec := yaml.NewDecoder(bytes.NewReader(data))
@@ -67,41 +69,41 @@ func Save(path string, c *Config) error {
 	}
 
 	var buf bytes.Buffer
-	buf.WriteString("# shelf yapılandırması. Bu dosya kimlik bilgisi içerebilir, paylaşmayın.\n")
+	buf.WriteString(i18n.T("# shelf configuration. This file may contain credentials; do not share it.\n"))
 	enc := yaml.NewEncoder(&buf)
 	enc.SetIndent(2)
 	if err := enc.Encode(&fc); err != nil {
-		return fmt.Errorf("config kodlanamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot encode config: %w"), err)
 	}
 	if err := enc.Close(); err != nil {
-		return fmt.Errorf("config kodlanamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot encode config: %w"), err)
 	}
 
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
-		return fmt.Errorf("config klasörü oluşturulamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot create config folder: %w"), err)
 	}
 	// Write to a temp file and rename so a failed write never truncates an
 	// existing config.
 	tmp, err := os.CreateTemp(filepath.Dir(path), ".config-*.yaml")
 	if err != nil {
-		return fmt.Errorf("config yazılamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot write config: %w"), err)
 	}
 	tmpName := tmp.Name()
 	defer func() { _ = os.Remove(tmpName) }() // no-op after a successful rename
 	if err := tmp.Chmod(0o600); err != nil && !errors.Is(err, errors.ErrUnsupported) {
 		// Chmod is a no-op on Windows; elsewhere a failure is worth reporting.
 		_ = tmp.Close()
-		return fmt.Errorf("config izinleri ayarlanamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot set config permissions: %w"), err)
 	}
 	if _, err := tmp.Write(buf.Bytes()); err != nil {
 		_ = tmp.Close()
-		return fmt.Errorf("config yazılamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot write config: %w"), err)
 	}
 	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("config yazılamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot write config: %w"), err)
 	}
 	if err := os.Rename(tmpName, path); err != nil {
-		return fmt.Errorf("config yazılamadı: %w", err)
+		return fmt.Errorf(i18n.T("cannot write config: %w"), err)
 	}
 	return nil
 }

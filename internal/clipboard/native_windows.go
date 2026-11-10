@@ -46,7 +46,7 @@ func nativeCopy(text string) error {
 		time.Sleep(50 * time.Millisecond)
 	}
 	if !opened {
-		return fmt.Errorf("OpenClipboard başarısız")
+		return fmt.Errorf("OpenClipboard failed")
 	}
 	defer closeClipboard.Call() //nolint:errcheck // nothing to do on failure
 

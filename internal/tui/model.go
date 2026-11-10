@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Loader fetches the catalog. It is called on start and on every refresh.
@@ -100,7 +101,7 @@ func newModel(load Loader, repoLabel string, st styles) model {
 
 	in := textinput.New()
 	in.Prompt = "/"
-	in.Placeholder = "paket adı"
+	in.Placeholder = i18n.T("package name")
 	in.CharLimit = 100
 
 	return model{
@@ -226,9 +227,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.detail = newDetail(b)
 				}
 			}
-			cmd = m.setStatus("Panoya kopyalanamadı; komutu detay penceresinden seçip kopyalayın", true)
+			cmd = m.setStatus(i18n.T("Cannot copy to the clipboard; select the command in the detail window and copy it"), true)
 		} else {
-			cmd = m.setStatus("conan install komutu kopyalandı ("+msg.method+")", false)
+			cmd = m.setStatus(i18n.T("conan install command copied (")+i18n.T(msg.method)+")", false)
 		}
 
 	case statusMsg:
@@ -379,7 +380,7 @@ func (m model) handleFilterKey(key string) (model, tea.Cmd, bool) {
 		m.setSearch("")
 		m.binaries.reset()
 		m.syncCursors()
-		return m, m.setStatus("Filtreler temizlendi", false), true
+		return m, m.setStatus(i18n.T("Filters cleared"), false), true
 	case "m":
 		m.matrixMode = !m.matrixMode
 	default:
@@ -475,10 +476,10 @@ func (m model) copyInstall() tea.Cmd {
 		b = m.detail.binary
 	}
 	if b == nil {
-		return statusCmd("Kopyalanacak binary seçili değil", true)
+		return statusCmd(i18n.T("No binary selected to copy"), true)
 	}
 	if m.copy == nil {
-		return statusCmd("Pano desteği yok", true)
+		return statusCmd(i18n.T("No clipboard support"), true)
 	}
 	text, copyFn := conan.InstallCommand(b), m.copy
 	return func() tea.Msg {

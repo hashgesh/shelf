@@ -10,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/hashgesh/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Where a binary's settings came from.
@@ -124,9 +125,9 @@ func (b *Binary) Summary() string {
 	}
 	if len(parts) == 0 {
 		if b.MetadataSource == SourceNone {
-			return "bilinmiyor"
+			return i18n.T("unknown")
 		}
-		return "ayarsız (header-only)"
+		return i18n.T("no settings (header-only)")
 	}
 	return strings.Join(parts, "_")
 }

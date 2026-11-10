@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 type result struct {
@@ -42,9 +43,19 @@ func TestVersion(t *testing.T) {
 	}
 }
 
-func TestHelpIsTurkish(t *testing.T) {
+func TestHelpLanguages(t *testing.T) {
 	r := runCLI(t, nil, "", "config", "--help")
-	if r.code != ExitOK || !strings.Contains(r.stdout, "Kullanım:") || !strings.Contains(r.stdout, "Komutlar:") {
+	if r.code != ExitOK || !strings.Contains(r.stdout, "Usage:") || !strings.Contains(r.stdout, "Commands:") {
+		t.Fatalf("got %+v", r)
+	}
+	i18n.Set("tr")
+	defer i18n.Set("en")
+	r = runCLI(t, nil, "", "config", "--help")
+	if r.code != ExitOK || !strings.Contains(r.stdout, "Kullanım:") || !strings.Contains(r.stdout, "Yapılandırmayı oluştur") {
+		t.Fatalf("got %+v", r)
+	}
+	r = runFixture(t, "list")
+	if r.code != ExitOK || !strings.Contains(r.stdout, "PAKET") || !strings.Contains(r.stdout, "4 paket") {
 		t.Fatalf("got %+v", r)
 	}
 }
@@ -65,7 +76,7 @@ func TestConfigShowMasksSecretsAndReportsSources(t *testing.T) {
 			t.Fatalf("secret %q leaked:\n%s", leak, r.stdout)
 		}
 	}
-	for _, want := range []string{"https://file.example", "dosya", "envuser", "ortam", "a, b", "bayrak", "********", "Durum: geçerli"} {
+	for _, want := range []string{"https://file.example", "file", "envuser", "env", "a, b", "flag", "********", "Status: valid"} {
 		if !strings.Contains(r.stdout, want) {
 			t.Errorf("output missing %q:\n%s", want, r.stdout)
 		}
@@ -90,7 +101,7 @@ func TestConfigShowInvalid(t *testing.T) {
 		t.Fatal(err)
 	}
 	r := runCLI(t, nil, "", "--config", path, "config", "show")
-	if r.code != ExitOK || !strings.Contains(r.stdout, "url ayarlı değil") || !strings.Contains(r.stdout, "token gerekli") {
+	if r.code != ExitOK || !strings.Contains(r.stdout, "url not set") || !strings.Contains(r.stdout, "requires a token") {
 		t.Fatalf("got %+v", r)
 	}
 }
@@ -98,7 +109,7 @@ func TestConfigShowInvalid(t *testing.T) {
 func TestConfigErrorsExitWith2(t *testing.T) {
 	missing := filepath.Join(t.TempDir(), "missing.yaml")
 	r := runCLI(t, nil, "", "--config", missing, "config", "show")
-	if r.code != ExitConfig || !strings.Contains(r.stderr, "bulunamadı") {
+	if r.code != ExitConfig || !strings.Contains(r.stderr, "not found") {
 		t.Fatalf("got %+v", r)
 	}
 }
@@ -125,7 +136,7 @@ func TestConfigInit(t *testing.T) {
 	if strings.Contains(r.stdout, "s3cr3t") {
 		t.Fatal("token echoed to output")
 	}
-	if !strings.Contains(r.stdout, "Geçerli bir http") {
+	if !strings.Contains(r.stdout, "Enter a valid http") {
 		t.Error("invalid URL was not rejected")
 	}
 
@@ -215,14 +226,14 @@ func TestDebugPing(t *testing.T) {
 	srv, _ := fakeArtifactory(t, http.StatusOK, `{"results":[]}`)
 	env := map[string]string{config.EnvURL: srv.URL, config.EnvRepos: "conan-local,other"}
 	r := runCLI(t, env, "", "--config", writeEmptyConfig(t), "debug", "ping")
-	if r.code != ExitOK || !strings.Contains(r.stdout, "Repo other: erişilebilir ama boş") {
+	if r.code != ExitOK || !strings.Contains(r.stdout, "Repo other: reachable but empty") {
 		t.Fatalf("got %+v", r)
 	}
 }
 
 func TestDebugRequiresURL(t *testing.T) {
 	r := runCLI(t, nil, "", "--config", writeEmptyConfig(t), "debug", "ping")
-	if r.code != ExitConfig || !strings.Contains(r.stderr, "url ayarlı değil") {
+	if r.code != ExitConfig || !strings.Contains(r.stderr, "url not set") {
 		t.Fatalf("got %+v", r)
 	}
 }

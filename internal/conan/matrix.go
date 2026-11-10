@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // CellState is the availability of a package for one profile.
@@ -43,7 +45,7 @@ func (s *CellState) UnmarshalJSON(b []byte) error {
 	case "missing":
 		*s = CellMissing
 	default:
-		return fmt.Errorf("bilinmeyen hücre durumu: %q", v)
+		return fmt.Errorf(i18n.T("unknown cell state: %q"), v)
 	}
 	return nil
 }

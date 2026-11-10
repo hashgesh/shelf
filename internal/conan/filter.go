@@ -3,6 +3,8 @@ package conan
 import (
 	"fmt"
 	"strings"
+
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // Filter narrows binaries. Empty fields match everything. Values are matched
@@ -70,7 +72,7 @@ func (f Filter) Apply(bs []*Binary) []*Binary {
 // Describe renders the active filter fields, e.g. "os=win build=rel".
 func (f Filter) Describe() string {
 	var parts []string
-	for _, kv := range [][2]string{{"os", f.OS}, {"arch", f.Arch}, {"compiler", f.Compiler}, {"build", f.BuildType}, {"profil", f.Profile}} {
+	for _, kv := range [][2]string{{"os", f.OS}, {"arch", f.Arch}, {"compiler", f.Compiler}, {"build", f.BuildType}, {"profile", f.Profile}} {
 		if kv[1] != "" {
 			parts = append(parts, kv[0]+"="+kv[1])
 		}
@@ -95,12 +97,12 @@ func ParseRefSpec(s string) (RefSpec, error) {
 	if hasUC {
 		user, channel, ok := strings.Cut(uc, "/")
 		if !ok {
-			return r, fmt.Errorf("referans geçersiz: %q (beklenen: ad/sürüm@user/channel)", s)
+			return r, fmt.Errorf(i18n.T("invalid reference: %q (expected: name/version@user/channel)"), s)
 		}
 		r.User, r.Channel, r.HasUserChannel = unEmpty(user), unEmpty(channel), true
 	}
 	if r.Name == "" || strings.Contains(r.Version, "/") {
-		return r, fmt.Errorf("referans geçersiz: %q (beklenen: ad[/sürüm[@user/channel]])", s)
+		return r, fmt.Errorf(i18n.T("invalid reference: %q (expected: name[/version[@user/channel]])"), s)
 	}
 	return r, nil
 }
@@ -110,7 +112,7 @@ func ParseRefSpec(s string) (RefSpec, error) {
 func (c *Catalog) Resolve(spec RefSpec) (*Package, *Version, error) {
 	p := c.Find(spec.Name)
 	if p == nil {
-		return nil, nil, fmt.Errorf("paket bulunamadı: %s", spec.Name)
+		return nil, nil, fmt.Errorf(i18n.T("package not found: %s"), spec.Name)
 	}
 	var cands []*Version
 	for _, v := range p.Versions {
@@ -124,7 +126,7 @@ func (c *Catalog) Resolve(spec RefSpec) (*Package, *Version, error) {
 	}
 	switch {
 	case len(cands) == 0:
-		return p, nil, fmt.Errorf("sürüm bulunamadı: %s", FormatRef(spec.Name, spec.Version, spec.User, spec.Channel))
+		return p, nil, fmt.Errorf(i18n.T("version not found: %s"), FormatRef(spec.Name, spec.Version, spec.User, spec.Channel))
 	case spec.Version == "":
 		return p, cands[0], nil // versions are sorted newest first
 	case len(cands) > 1:
@@ -132,7 +134,7 @@ func (c *Catalog) Resolve(spec RefSpec) (*Package, *Version, error) {
 		for _, v := range cands {
 			refs = append(refs, v.Ref(p.Name))
 		}
-		return p, nil, fmt.Errorf("birden fazla eşleşme, user/channel belirtin: %s", strings.Join(refs, ", "))
+		return p, nil, fmt.Errorf(i18n.T("multiple matches, specify user/channel: %s"), strings.Join(refs, ", "))
 	}
 	return p, cands[0], nil
 }

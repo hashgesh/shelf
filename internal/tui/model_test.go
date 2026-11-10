@@ -85,12 +85,12 @@ func press(t *testing.T, m model, keys ...string) model {
 func TestLoadingAndError(t *testing.T) {
 	m := newModel(nil, "conan-local", testStyles(false))
 	m = update(t, m, tea.WindowSizeMsg{Width: 120, Height: 30})
-	if v := m.View(); !strings.Contains(v, "veriler alınıyor") || !strings.Contains(v, "shelf · conan-local") {
+	if v := m.View(); !strings.Contains(v, "Fetching data") || !strings.Contains(v, "shelf · conan-local") {
 		t.Errorf("loading view:\n%s", v)
 	}
 
 	m = update(t, m, loadedMsg{err: errors.New("HTTP 401")})
-	if v := m.View(); !strings.Contains(v, "Hata:") || !strings.Contains(v, "HTTP 401") || !strings.Contains(v, "R ile tekrar dene") {
+	if v := m.View(); !strings.Contains(v, "Error:") || !strings.Contains(v, "HTTP 401") || !strings.Contains(v, "R to retry") {
 		t.Errorf("error view:\n%s", v)
 	}
 
@@ -103,12 +103,12 @@ func TestLoadingAndError(t *testing.T) {
 func TestWideLayout(t *testing.T) {
 	m := newTestModel(t, 140, 30, false)
 	v := m.View()
-	if !strings.Contains(v, "shelf · conan-local · 4 paket") {
+	if !strings.Contains(v, "shelf · conan-local · 4 packages") {
 		t.Errorf("top bar missing:\n%s", v)
 	}
 	sideBySide := false
 	for _, l := range strings.Split(v, "\n") {
-		if strings.Contains(l, "Paketler") && strings.Contains(l, "Sürümler") {
+		if strings.Contains(l, "Packages") && strings.Contains(l, "Versions") {
 			sideBySide = true
 		}
 	}
@@ -116,7 +116,7 @@ func TestWideLayout(t *testing.T) {
 		t.Errorf("panels should be side by side at 140 columns:\n%s", v)
 	}
 	// First package is fmt; its newest version is 11.0.2 with one Linux binary.
-	for _, want := range []string{"fmt", "11.0.2@mycompany/stable", "OS", "Profil", "linux-gcc12-x86_64-release"} {
+	for _, want := range []string{"fmt", "11.0.2@mycompany/stable", "OS", "Profile", "linux-gcc12-x86_64-release"} {
 		if !strings.Contains(v, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -126,7 +126,7 @@ func TestWideLayout(t *testing.T) {
 func TestNarrowLayoutStacks(t *testing.T) {
 	m := newTestModel(t, 90, 40, false)
 	for _, l := range strings.Split(m.View(), "\n") {
-		if strings.Contains(l, "Paketler") && strings.Contains(l, "Sürümler") {
+		if strings.Contains(l, "Packages") && strings.Contains(l, "Versions") {
 			t.Fatalf("panels should stack below %d columns", narrowWidth)
 		}
 	}
@@ -216,7 +216,7 @@ func TestRefreshKeepsSelection(t *testing.T) {
 	if !m.loading || cmd == nil {
 		t.Fatal("F5 should reload")
 	}
-	if !strings.Contains(m.View(), "yenileniyor") {
+	if !strings.Contains(m.View(), "refreshing") {
 		t.Error("refresh indicator missing")
 	}
 	m = update(t, m, loadedMsg{res: fixtureResult(t)})
@@ -227,7 +227,7 @@ func TestRefreshKeepsSelection(t *testing.T) {
 	// A failed refresh keeps the old data and reports in the status bar.
 	m = press(t, m, "R")
 	m = update(t, m, loadedMsg{err: errors.New("timeout")})
-	if v := m.View(); !strings.Contains(v, "yenileme başarısız: timeout") || !strings.Contains(v, "zlib") {
+	if v := m.View(); !strings.Contains(v, "refresh failed: timeout") || !strings.Contains(v, "zlib") {
 		t.Errorf("failed refresh view:\n%s", v)
 	}
 }
@@ -235,7 +235,7 @@ func TestRefreshKeepsSelection(t *testing.T) {
 func TestHelpAndQuit(t *testing.T) {
 	m := newTestModel(t, 120, 30, false)
 	m = press(t, m, "?")
-	if !strings.Contains(m.View(), "Kısayollar") {
+	if !strings.Contains(m.View(), "Shortcuts") {
 		t.Error("help not shown")
 	}
 	m = press(t, m, "j") // ignored while help is open

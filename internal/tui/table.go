@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/conan"
 	"github.com/hashgesh/shelf/internal/format"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 var (
@@ -34,11 +35,11 @@ var binaryColumns = []column{
 	}},
 	{title: "Build", maxWidth: 14, value: func(b *conan.Binary) string { return dash(b.BuildType) }},
 	{title: "Shared", maxWidth: 6, drop: 3, value: func(b *conan.Binary) string { return dash(b.Shared()) }},
-	{title: "Boyut", maxWidth: 9, drop: 5, value: func(b *conan.Binary) string { return humanSize(b.Size) }},
-	{title: "Tarih", maxWidth: 10, drop: 6, value: func(b *conan.Binary) string { return format.Date(b.Created) }},
-	{title: "Yükleyen", maxWidth: 14, drop: 7, value: func(b *conan.Binary) string { return dash(b.CreatedBy) }},
+	{title: "Size", maxWidth: 9, drop: 5, value: func(b *conan.Binary) string { return humanSize(b.Size) }},
+	{title: "Date", maxWidth: 10, drop: 6, value: func(b *conan.Binary) string { return format.Date(b.Created) }},
+	{title: "Uploaded by", maxWidth: 14, drop: 7, value: func(b *conan.Binary) string { return dash(b.CreatedBy) }},
 	{title: "ID", maxWidth: 8, drop: 4, value: func(b *conan.Binary) string { return shortID(b.PackageID) }},
-	{title: "Profil", maxWidth: 32, minWidth: 14, drop: 2, value: func(b *conan.Binary) string { return b.Label() }},
+	{title: "Profile", maxWidth: 32, minWidth: 14, drop: 2, value: func(b *conan.Binary) string { return b.Label() }},
 }
 
 const colGap = 2
@@ -50,7 +51,7 @@ func layoutColumns(bs []*conan.Binary, width int) ([]column, []int) {
 		widths := make([]int, len(cols))
 		total := colGap * (len(cols) - 1)
 		for i, c := range cols {
-			w := runewidth.StringWidth(c.title)
+			w := runewidth.StringWidth(i18n.T(c.title))
 			for _, b := range bs {
 				w = max(w, runewidth.StringWidth(c.value(b)))
 			}

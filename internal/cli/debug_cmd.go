@@ -11,6 +11,7 @@ import (
 	"github.com/hashgesh/shelf/internal/artifactory"
 	"github.com/hashgesh/shelf/internal/conan"
 	"github.com/hashgesh/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/i18n"
 )
 
 // newClient loads and validates the configuration and builds a client.
@@ -33,7 +34,7 @@ func (a *app) newClient(cmd *cobra.Command) (*config.Config, *artifactory.Client
 func (a *app) newDebugCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "debug",
-		Short:  "Tanılama komutları",
+		Short:  i18n.T("Diagnostic commands"),
 		Hidden: true,
 		Args:   noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -47,7 +48,7 @@ func (a *app) newDebugCmd() *cobra.Command {
 func (a *app) newDebugPingCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "ping",
-		Short: "Sunucu bağlantısını ve her repo için AQL erişimini dene",
+		Short: i18n.T("Test the server connection and AQL access for each repo"),
 		Args:  noArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cfg, c, err := a.newClient(cmd)
@@ -58,16 +59,16 @@ func (a *app) newDebugPingCmd() *cobra.Command {
 			if err := c.Ping(cmd.Context()); err != nil {
 				return err
 			}
-			fmt.Fprintf(out, "Sunucu erişilebilir: %s\n", cfg.URL)
+			fmt.Fprintf(out, i18n.T("Server reachable: %s\n"), cfg.URL)
 			for _, repo := range cfg.Repos {
 				q := artifactory.ItemsQuery{Repos: []string{repo}, Include: []string{"repo", "path", "name"}, Limit: 1, NoSort: true}
 				res, err := c.AQL(cmd.Context(), q.String())
 				if err != nil {
 					return fmt.Errorf("repo %s: %w", repo, err)
 				}
-				state := "erişilebilir"
+				state := i18n.T("reachable")
 				if len(res.Results) == 0 {
-					state = "erişilebilir ama boş (veya okuma izni yok)"
+					state = i18n.T("reachable but empty (or no read permission)")
 				}
 				fmt.Fprintf(out, "Repo %s: %s\n", repo, state)
 			}
@@ -84,9 +85,9 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 		outPath string
 	)
 	cmd := &cobra.Command{
-		Use:   "aql [bayraklar]",
-		Short: "Ham AQL yanıtını yaz (gerçek property adlarını ve path düzenini görmek için)",
-		Example: "  shelf debug aql --limit 3 --out aql-ornek.json\n" +
+		Use:   i18n.T("aql [flags]"),
+		Short: i18n.T("Write the raw AQL response (to see the real property names and path layout)"),
+		Example: "  shelf debug aql --limit 3 --out aql-sample.json\n" +
 			"  shelf debug aql --name conaninfo.txt\n" +
 			`  shelf debug aql --query 'items.find({"repo":"conan-local"}).include("name","path").limit(10)'`,
 		Args: noArgs,
@@ -102,7 +103,7 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 				}
 				query = q.String()
 			}
-			fmt.Fprintf(cmd.ErrOrStderr(), "Sorgu: %s\n", query)
+			fmt.Fprintf(cmd.ErrOrStderr(), i18n.T("Query: %s\n"), query)
 
 			raw, err := c.RawAQL(cmd.Context(), query)
 			if err != nil {
@@ -117,9 +118,9 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 
 			if outPath != "" {
 				if err := os.WriteFile(outPath, pretty.Bytes(), 0o600); err != nil {
-					return fmt.Errorf("dosya yazılamadı: %w", err)
+					return fmt.Errorf(i18n.T("cannot write file: %w"), err)
 				}
-				fmt.Fprintf(cmd.ErrOrStderr(), "Yazıldı: %s (%d bayt)\n", outPath, pretty.Len())
+				fmt.Fprintf(cmd.ErrOrStderr(), i18n.T("Wrote: %s (%d bytes)\n"), outPath, pretty.Len())
 				return nil
 			}
 			_, err = cmd.OutOrStdout().Write(pretty.Bytes())
@@ -127,9 +128,9 @@ func (a *app) newDebugAQLCmd() *cobra.Command {
 		},
 	}
 	f := cmd.Flags()
-	f.StringVar(&query, "query", "", "çalıştırılacak ham AQL sorgusu (verilirse diğer bayraklar yok sayılır)")
-	f.StringVar(&name, "name", conan.PackageFile, "aranacak dosya adı (boş: tümü)")
-	f.IntVar(&limit, "limit", 5, "en fazla kaç sonuç")
-	f.StringVar(&outPath, "out", "", "çıktıyı ekran yerine bu dosyaya yaz")
+	f.StringVar(&query, "query", "", i18n.T("raw AQL query to run (other flags are ignored when set)"))
+	f.StringVar(&name, "name", conan.PackageFile, i18n.T("file name to search for (empty: all)"))
+	f.IntVar(&limit, "limit", 5, i18n.T("maximum number of results"))
+	f.StringVar(&outPath, "out", "", i18n.T("write the output to this file instead of the screen"))
 	return cmd
 }

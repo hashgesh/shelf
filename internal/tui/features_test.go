@@ -54,7 +54,7 @@ func TestQuickFilters(t *testing.T) {
 		t.Errorf("w+r: %d binaries", n)
 	}
 	v := m.View()
-	for _, want := range []string{"filtre: Windows Release", "2/9 binary", "zlib (3)", "win-msvc194-x64-release"} {
+	for _, want := range []string{"filter: Windows Release", "2/9 binaries", "zlib (3)", "win-msvc194-x64-release"} {
 		if !strings.Contains(v, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -79,7 +79,7 @@ func TestQuickFilters(t *testing.T) {
 	}
 
 	m = run(t, m, keyRunes("0"))
-	if !m.filter.IsZero() || len(m.currentBinaries()) != 9 || !strings.Contains(m.View(), "Filtreler temizlendi") {
+	if !m.filter.IsZero() || len(m.currentBinaries()) != 9 || !strings.Contains(m.View(), "Filters cleared") {
 		t.Errorf("after 0: filter=%+v", m.filter)
 	}
 }
@@ -88,7 +88,7 @@ func TestFilterWithNoMatches(t *testing.T) {
 	m := newTestModel(t, 140, 40, false)
 	m = press(t, m, "j") // nlohmann_json: header-only, no OS
 	m = press(t, m, "w")
-	if !strings.Contains(m.View(), "Filtreye uyan binary yok") {
+	if !strings.Contains(m.View(), "No binaries match the filter") {
 		t.Error("empty filter message missing")
 	}
 }
@@ -102,7 +102,7 @@ func TestSearch(t *testing.T) {
 	if ps := m.pkgs(); len(ps) != 1 || ps[0].Name != "openssl" {
 		t.Fatalf("pkgs = %v", ps)
 	}
-	if v := m.View(); !strings.Contains(v, "/ss") || !strings.Contains(v, "Paketler (1/4)") {
+	if v := m.View(); !strings.Contains(v, "/ss") || !strings.Contains(v, "Packages (1/4)") {
 		t.Errorf("search view:\n%s", v)
 	}
 	// Keys go to the input while searching.
@@ -114,7 +114,7 @@ func TestSearch(t *testing.T) {
 	if m.searching || m.search != "ss" || m.currentPackage().Name != "openssl" {
 		t.Errorf("after enter: searching=%v search=%q", m.searching, m.search)
 	}
-	if !strings.Contains(m.View(), "ara: ss") {
+	if !strings.Contains(m.View(), "search: ss") {
 		t.Error("confirmed search not shown in status bar")
 	}
 
@@ -185,7 +185,7 @@ func TestCopyInstall(t *testing.T) {
 	if copied != want {
 		t.Fatalf("copied %q, want %q", copied, want)
 	}
-	if !strings.Contains(m.View(), "kopyalandı (xclip)") {
+	if !strings.Contains(m.View(), "copied (xclip)") {
 		t.Error("success status missing")
 	}
 	if m.detail != nil {
@@ -195,12 +195,12 @@ func TestCopyInstall(t *testing.T) {
 
 func TestCopyFailureShowsCommand(t *testing.T) {
 	m := selectZlib(t, 140)
-	m.copy = func(string) (string, error) { return "", errors.New("pano kullanılamıyor") }
+	m.copy = func(string) (string, error) { return "", errors.New("clipboard unavailable") }
 	m = run(t, m, keyRunes("c"))
 	if m.detail == nil {
 		t.Fatal("failed copy should open the detail window with the command")
 	}
-	if v := m.View(); !strings.Contains(v, "Panoya kopyalanamadı") || !strings.Contains(v, "conan install --requires") {
+	if v := m.View(); !strings.Contains(v, "Cannot copy to the clipboard") || !strings.Contains(v, "conan install --requires") {
 		t.Errorf("failure view:\n%s", v)
 	}
 }
@@ -210,7 +210,7 @@ func TestCopyWithoutBinary(t *testing.T) {
 	m.copy = func(string) (string, error) { t.Fatal("copy should not be called"); return "", nil }
 	m = press(t, m, "/", "z", "z", "z", "enter")
 	m = run(t, m, keyRunes("c"))
-	if !strings.Contains(m.View(), "seçili değil") {
+	if !strings.Contains(m.View(), "No binary selected") {
 		t.Error("missing 'no binary' status")
 	}
 }
@@ -238,7 +238,7 @@ func TestMatrixMode(t *testing.T) {
 		t.Fatal("m should open the matrix")
 	}
 	v := m.View()
-	for _, want := range []string{"Matrix", "linux-gcc12-armv8-release", "win-msvc194-x64-release", "zlib/1.3.1", "✓", "✗", "6 eksik"} {
+	for _, want := range []string{"Matrix", "linux-gcc12-armv8-release", "win-msvc194-x64-release", "zlib/1.3.1", "✓", "✗", "6 missing"} {
 		if !strings.Contains(v, want) {
 			t.Errorf("matrix view missing %q", want)
 		}
@@ -279,7 +279,7 @@ func TestMatrixEnterOpensBinaries(t *testing.T) {
 			t.Errorf("binary %s does not match %s", b, prof)
 		}
 	}
-	if !strings.Contains(m.View(), "profil: "+prof) {
+	if !strings.Contains(m.View(), "profile: "+prof) {
 		t.Error("profile filter not shown")
 	}
 }
@@ -291,7 +291,7 @@ func TestMatrixColumnsScroll(t *testing.T) {
 		m = press(t, m, "right")
 	}
 	v := m.View()
-	if !strings.Contains(v, "win-msvc194-x64-release") || !strings.Contains(v, "sütun") {
+	if !strings.Contains(v, "win-msvc194-x64-release") || !strings.Contains(v, "columns") {
 		t.Errorf("last column not scrolled into view:\n%s", v)
 	}
 	for _, r := range []string{"×", "·", "✓", "✗"} {
@@ -310,7 +310,7 @@ func TestMatrixWithoutProfiles(t *testing.T) {
 	m := newTestModel(t, 120, 20, false)
 	m.result.Profiles = nil
 	m = press(t, m, "m")
-	if !strings.Contains(m.View(), "Profil yok") {
+	if !strings.Contains(m.View(), "No profiles") {
 		t.Error("missing no-profiles message")
 	}
 }
@@ -318,11 +318,11 @@ func TestMatrixWithoutProfiles(t *testing.T) {
 func TestDetailMoreIndicator(t *testing.T) {
 	m := newTestModel(t, 120, 20, false)
 	m = press(t, m, "G", "tab", "tab", "enter")
-	if !strings.Contains(m.View(), "satır daha") {
+	if !strings.Contains(m.View(), "more lines") {
 		t.Error("missing more-content indicator")
 	}
 	m = press(t, m, "G")
-	if v := m.View(); strings.Contains(v, "satır daha") || !strings.Contains(v, "conan install --requires") {
+	if v := m.View(); strings.Contains(v, "more lines") || !strings.Contains(v, "conan install --requires") {
 		t.Errorf("bottom of detail:\n%s", v)
 	}
 }
@@ -337,8 +337,8 @@ func TestRefreshIndicatorKeepsItsStyle(t *testing.T) {
 	bar := m.topBar()
 
 	// No reset between the indicator's style and its text: the old bar
-	// rendered "yenileniyor" unstyled right after the spinner's reset.
-	i := strings.Index(bar, "yenileniyor")
+	// rendered "refreshing" unstyled right after the spinner's reset.
+	i := strings.Index(bar, "refreshing")
 	if i < 0 {
 		t.Fatalf("indicator missing: %q", bar)
 	}
@@ -352,7 +352,7 @@ func TestRefreshIndicatorKeepsItsStyle(t *testing.T) {
 
 	// Narrow terminals keep the indicator and cut the left side instead.
 	m = update(t, m, tea.WindowSizeMsg{Width: 30, Height: 20})
-	if bar := m.topBar(); !strings.Contains(bar, "yenileniyor") || lipgloss.Width(bar) != 30 {
+	if bar := m.topBar(); !strings.Contains(bar, "refreshing") || lipgloss.Width(bar) != 30 {
 		t.Errorf("narrow bar = %q (width %d)", bar, lipgloss.Width(bar))
 	}
 }
