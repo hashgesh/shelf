@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 func (a *app) newConfigCmd() *cobra.Command {

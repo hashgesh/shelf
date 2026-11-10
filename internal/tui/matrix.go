@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mattn/go-runewidth"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/conan"
 )
 
 // matrix returns the packages × profiles matrix for the current search and

@@ -31,14 +31,14 @@ footer = """
 {% for release in releases -%}
     {% if release.version and release.previous and release.previous.version -%}
         [{{ release.version | trim_start_matches(pat="v") }}]: \
-            https://github.com/halilibrahimonus/shelf\
+            https://github.com/hashgesh/shelf\
                 /compare/{{ release.previous.version }}..{{ release.version }}
     {% elif release.version -%}
         [{{ release.version | trim_start_matches(pat="v") }}]: \
-            https://github.com/halilibrahimonus/shelf\
+            https://github.com/hashgesh/shelf\
                 /tree/{{ release.version }}
     {% elif release.previous and release.previous.version -%}
-        [unreleased]: https://github.com/halilibrahimonus/shelf\
+        [unreleased]: https://github.com/hashgesh/shelf\
             /compare/{{ release.previous.version }}..HEAD
     {% endif -%}
 {% endfor %}

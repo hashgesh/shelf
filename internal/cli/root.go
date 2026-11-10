@@ -12,8 +12,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 // Exit codes.

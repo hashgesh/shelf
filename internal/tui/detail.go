@@ -8,8 +8,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-runewidth"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
-	"github.com/halilibrahimonus/shelf/internal/format"
+	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/format"
 )
 
 // detail is the modal window for one binary.

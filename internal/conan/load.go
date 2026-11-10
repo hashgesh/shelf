@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 // Source is what Load needs from Artifactory; *artifactory.Client and

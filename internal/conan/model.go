@@ -9,7 +9,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/artifactory"
 )
 
 // Where a binary's settings came from.

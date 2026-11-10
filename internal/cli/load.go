@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
-	"github.com/halilibrahimonus/shelf/internal/conan"
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 // session bundles what a data command needs after loading.

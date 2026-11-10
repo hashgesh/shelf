@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/conan"
 )
 
 // run applies msg and then feeds the command's result back, like the
