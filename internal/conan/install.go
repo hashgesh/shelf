@@ -8,8 +8,7 @@ import (
 // InstallCommand builds a `conan install` command line that resolves to b:
 // the recipe revision is pinned, the matched profile is used as host
 // profile (or every known setting is passed with -s when none matched), and
-// the binary's options are passed with -o. Arguments that may contain shell
-// metacharacters are double-quoted, which works in bash, cmd and PowerShell.
+// the binary's options are passed with -o. See quote for the quoting rules.
 func InstallCommand(b *Binary) string {
 	ref := b.Ref()
 	if b.RecipeRevision != "" {
@@ -29,9 +28,22 @@ func InstallCommand(b *Binary) string {
 	return strings.Join(parts, " ")
 }
 
+// quote makes s one literal shell argument. No single quoting style is
+// literal in bash, cmd and PowerShell at once, so:
+//   - plain arguments are left alone;
+//   - arguments with ordinary metacharacters (space, *, #, ...) are
+//     double-quoted, which all three shells take literally;
+//   - arguments with characters that stay special inside double quotes
+//     ($, `, ", \, !) are single-quoted, which bash and PowerShell take
+//     literally (cmd has no literal quoting for these). An embedded single
+//     quote is doubled, the PowerShell form; such values are not expected in
+//     Conan references, settings or options.
 func quote(s string) string {
-	if strings.ContainsAny(s, " *?#&|<>;()$`'\"!") {
-		return `"` + strings.ReplaceAll(s, `"`, `\"`) + `"`
+	switch {
+	case strings.ContainsAny(s, "$`\"\\!"):
+		return "'" + strings.ReplaceAll(s, "'", "''") + "'"
+	case strings.ContainsAny(s, " \t*?#&|<>;()'^%~[]{}"):
+		return `"` + s + `"`
 	}
 	return s
 }

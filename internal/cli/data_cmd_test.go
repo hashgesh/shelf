@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/halilibrahimonus/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/conan"
 )
 
 const fixture = "../../testdata/aql.json"

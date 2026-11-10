@@ -7,8 +7,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 // countingSource wraps a fixture and counts downloads.

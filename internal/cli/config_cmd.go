@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 func (a *app) newConfigCmd() *cobra.Command {
@@ -245,8 +245,17 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		}
 	}
 
-	if next.ProfilesDir, err = p.ask("Conan profil klasörü", cur.ProfilesDir); err != nil {
+	// The default follows CONAN_HOME, so it is offered but not written to the
+	// file: a saved copy would pin the folder and hide later CONAN_HOME changes.
+	profilesDefault := cur.ProfilesDir
+	if cur.Sources[config.KeyProfilesDir] == config.SourceDefault {
+		profilesDefault = config.DefaultProfilesDir(a.lookupEnv)
+	}
+	if next.ProfilesDir, err = p.ask("Conan profil klasörü", profilesDefault); err != nil {
 		return err
+	}
+	if next.ProfilesDir == config.DefaultProfilesDir(a.lookupEnv) {
+		next.ProfilesDir = ""
 	}
 	if next.InsecureTLS, err = p.confirm("TLS sertifika doğrulaması kapatılsın mı (self-signed sertifika)?", cur.InsecureTLS); err != nil {
 		return err

@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"github.com/halilibrahimonus/shelf/internal/clipboard"
-	"github.com/halilibrahimonus/shelf/internal/conan"
-	"github.com/halilibrahimonus/shelf/internal/tui"
+	"github.com/hashgesh/shelf/internal/clipboard"
+	"github.com/hashgesh/shelf/internal/conan"
+	"github.com/hashgesh/shelf/internal/tui"
 )
 
 // runTUI opens the interactive browser. Configuration errors surface before

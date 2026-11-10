@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/halilibrahimonus/shelf/internal/config"
+	"github.com/hashgesh/shelf/internal/config"
 )
 
 type result struct {
@@ -234,4 +234,42 @@ func writeEmptyConfig(t *testing.T) string {
 		t.Fatal(err)
 	}
 	return p
+}
+
+// The default profiles folder follows CONAN_HOME, so `config init` must not
+// freeze it into the file.
+func TestConfigInitKeepsDefaultProfilesDirOutOfFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	env := map[string]string{config.EnvConanHome: filepath.Join("/opt", "conan-a")}
+	answers := "https://art.example/artifactory\n" + strings.Repeat("\n", 9)
+
+	r := runCLI(t, env, answers, "--config", path, "config", "init")
+	if r.code != ExitOK {
+		t.Fatalf("code=%d stderr=%s\nstdout=%s", r.code, r.stderr, r.stdout)
+	}
+	if !strings.Contains(r.stdout, filepath.Join("/opt", "conan-a", "profiles")) {
+		t.Errorf("prompt does not offer the CONAN_HOME default:\n%s", r.stdout)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "profiles_dir") {
+		t.Errorf("default profiles_dir was written to the file:\n%s", data)
+	}
+
+	// A later CONAN_HOME change is therefore still honored.
+	other := filepath.Join("/opt", "conan-b")
+	c, err := config.Load(config.Options{Path: path, LookupEnv: func(k string) (string, bool) {
+		if k == config.EnvConanHome {
+			return other, true
+		}
+		return "", false
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := filepath.Join(other, "profiles"); c.ProfilesDir != want {
+		t.Errorf("ProfilesDir = %q, want %q", c.ProfilesDir, want)
+	}
 }

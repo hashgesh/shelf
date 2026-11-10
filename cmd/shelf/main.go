@@ -4,7 +4,7 @@ package main
 import (
 	"os"
 
-	"github.com/halilibrahimonus/shelf/internal/cli"
+	"github.com/hashgesh/shelf/internal/cli"
 )
 
 // Build metadata, injected at link time via -ldflags "-X main.version=...".

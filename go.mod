@@ -1,4 +1,4 @@
-module github.com/halilibrahimonus/shelf
+module github.com/hashgesh/shelf
 
 go 1.24.2
 

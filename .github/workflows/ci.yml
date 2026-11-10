@@ -1,9 +1,10 @@
 name: ci
 
 on:
+  # Branch pushes are covered by pull_request; building them on push as well
+  # would run every PR commit twice.
   push:
-    branches: ["**"]
-    tags-ignore: ["v*"]
+    branches: [main]
   pull_request:
 
 permissions:

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/halilibrahimonus/shelf/internal/artifactory"
+	"github.com/hashgesh/shelf/internal/artifactory"
 )
 
 const fixtureDir = "../../testdata"
@@ -552,5 +552,81 @@ func TestBuildMatrix(t *testing.T) {
 	}
 	if m.Missing() == 0 {
 		t.Error("expected missing cells")
+	}
+}
+
+func TestRevisionsOrderedByRecipeUpload(t *testing.T) {
+	day := func(d int) time.Time { return time.Date(2026, 1, d, 0, 0, 0, 0, time.UTC) }
+	pkg := func(rrev string, created time.Time) artifactory.Item {
+		return artifactory.Item{Repo: "r", Path: "_/zlib/1.0/_/" + rrev + "/package/p/v", Name: PackageFile, Created: created}
+	}
+	recipe := func(rrev string, created time.Time) artifactory.Item {
+		return artifactory.Item{Repo: "r", Path: "_/zlib/1.0/_/" + rrev + "/export", Name: RecipeFile, Created: created}
+	}
+	order := func(items []artifactory.Item) string {
+		cat, warns := BuildCatalog(items, nil)
+		if len(warns) != 0 {
+			t.Fatalf("warnings = %v", warns)
+		}
+		var out []string
+		for _, r := range cat.Find("zlib").Versions[0].Revisions {
+			out = append(out, r.Revision)
+		}
+		return strings.Join(out, ",")
+	}
+
+	// "old" got a rebuilt binary after "new" was published: the recipe
+	// upload decides, not the binary.
+	items := []artifactory.Item{
+		recipe("old", day(1)), pkg("old", day(9)),
+		recipe("new", day(5)), pkg("new", day(6)),
+	}
+	if got := order(items); got != "new,old" {
+		t.Errorf("with recipe dates: %s, want new,old", got)
+	}
+	// Without recipe items the newest binary is the only hint left.
+	if got := order([]artifactory.Item{pkg("old", day(9)), pkg("new", day(6))}); got != "old,new" {
+		t.Errorf("fallback: %s, want old,new", got)
+	}
+	// A dated revision outranks an undated one whatever its binaries say.
+	if got := order([]artifactory.Item{pkg("undated", day(20)), recipe("dated", day(2)), pkg("dated", day(3))}); got != "dated,undated" {
+		t.Errorf("mixed: %s, want dated,undated", got)
+	}
+}
+
+func TestBuildCatalogMergesReposAndCountsRevisions(t *testing.T) {
+	at := func(h int) time.Time { return time.Date(2026, 1, 1, h, 0, 0, 0, time.UTC) }
+	item := func(repo, prev string, created time.Time) artifactory.Item {
+		return artifactory.Item{Repo: repo, Path: "_/zlib/1.0/_/r/package/p/" + prev, Name: PackageFile, Created: created}
+	}
+	cat, _ := BuildCatalog([]artifactory.Item{
+		item("a", "v1", at(1)),
+		item("a", "v2", at(2)),
+		item("b", "v2", at(3)), // same binary promoted to another repo
+		item("b", "v1", at(4)),
+	}, nil)
+	bins := cat.Binaries()
+	if len(bins) != 1 {
+		t.Fatalf("binaries = %d, want 1", len(bins))
+	}
+	if b := bins[0]; b.PackageRevision != "v2" || b.Repo != "a" || b.OlderRevisions != 1 {
+		t.Errorf("binary = prev %s repo %s older %d, want v2 a 1", b.PackageRevision, b.Repo, b.OlderRevisions)
+	}
+}
+
+func TestQuote(t *testing.T) {
+	for in, want := range map[string]string{
+		"build_type=Debug":   "build_type=Debug",
+		"zlib/*:shared=True": `"zlib/*:shared=True"`,
+		"zlib/1.3.1#abc":     `"zlib/1.3.1#abc"`,
+		"a b":                `"a b"`,
+		"x:flags=$HOME":      `'x:flags=$HOME'`,
+		"x:flags=`id`":       "'x:flags=`id`'",
+		`x:def=A="b"`:        `'x:def=A="b"'`,
+		`x:path=C:\dir`:      `'x:path=C:\dir'`,
+	} {
+		if got := quote(in); got != want {
+			t.Errorf("quote(%q) = %s, want %s", in, got, want)
+		}
 	}
 }
