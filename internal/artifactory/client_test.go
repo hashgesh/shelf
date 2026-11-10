@@ -261,8 +261,9 @@ func TestSearchItemsPaging(t *testing.T) {
 	if len(items) != 7 {
 		t.Fatalf("got %d items, want 7", len(items))
 	}
-	if requests != 3 {
-		t.Errorf("requests = %d, want 3", requests)
+	// Pages of 3, 3 and 2 rows, then the empty page that ends the search.
+	if requests != 4 {
+		t.Errorf("requests = %d, want 4", requests)
 	}
 	for i, it := range items {
 		if v, _ := it.Prop("idx"); v != strconv.Itoa(i) {
@@ -495,5 +496,70 @@ func TestSearchItemsStopsWhenOffsetIgnored(t *testing.T) {
 	}
 	if requests != 2 {
 		t.Errorf("requests = %d, want 2", requests)
+	}
+}
+
+// A server that applies offset/limit to item × property rows returns "full"
+// pages that decode into fewer items than the page size. The search must
+// keep going instead of taking a short page for the last one.
+func TestSearchItemsRowBasedPaging(t *testing.T) {
+	const total, propsPerItem = 10, 4
+	type row struct {
+		item int
+		prop Property
+	}
+	var rows []row
+	for i := 0; i < total; i++ {
+		for p := 0; p < propsPerItem; p++ {
+			rows = append(rows, row{i, Property{Key: fmt.Sprintf("k%d", p), Value: strconv.Itoa(i)}})
+		}
+	}
+	requests := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests++
+		b, _ := io.ReadAll(r.Body)
+		m := pageRe.FindStringSubmatch(string(b))
+		offset, _ := strconv.Atoi(m[1])
+		limit, _ := strconv.Atoi(m[2])
+		page := []Item{}
+		for _, rw := range rows[min(offset, len(rows)):min(offset+limit, len(rows))] {
+			path := fmt.Sprintf("p/%03d", rw.item)
+			if n := len(page); n > 0 && page[n-1].Path == path {
+				page[n-1].Properties = append(page[n-1].Properties, rw.prop)
+				continue
+			}
+			page = append(page, Item{Repo: "r", Path: path, Name: "conan_package.tgz", Properties: []Property{rw.prop}})
+		}
+		_ = json.NewEncoder(w).Encode(Result{Results: page})
+	}))
+	defer srv.Close()
+
+	// 6 rows per page: every page holds at most 2 items, well under 6.
+	c, _ := New(testConfig(srv.URL), WithPageSize(6))
+	items, err := c.SearchItems(context.Background(), ItemsQuery{Repos: []string{"r"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != total {
+		t.Fatalf("got %d items, want %d (requests=%d)", len(items), total, requests)
+	}
+	for i, it := range items {
+		if len(it.Properties) != propsPerItem {
+			t.Errorf("item %d has %d properties, want %d", i, len(it.Properties), propsPerItem)
+		}
+	}
+}
+
+func TestErrorBodyIsNotBufferedWhole(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = io.WriteString(w, "boom "+strings.Repeat("x", 4*maxErrorBody))
+	}))
+	defer srv.Close()
+	c, _ := New(testConfig(srv.URL))
+	_, err := c.AQL(context.Background(), "items.find()")
+	var he *HTTPError
+	if !errors.As(err, &he) || he.Status != http.StatusInternalServerError || !strings.HasPrefix(he.Body, "boom ") {
+		t.Fatalf("err = %v", err)
 	}
 }

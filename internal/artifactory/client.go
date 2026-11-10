@@ -23,6 +23,7 @@ const (
 	maxAQLBytes      = 512 << 20
 	maxDownloadBytes = 4 << 20
 	maxErrorSnippet  = 300
+	maxErrorBody     = 64 << 10
 )
 
 // DefaultPageSize keeps each AQL request under Artifactory's default
@@ -168,17 +169,19 @@ func (c *Client) do(req *http.Request, limit int64) ([]byte, error) {
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, limit+1))
-	if err != nil {
-		return nil, fmt.Errorf("%s %s: yanıt okunamadı: %w", req.Method, redactURL(req.URL), err)
-	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		// Only a snippet of an error body is ever shown; don't buffer more.
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, maxErrorBody))
 		return nil, &HTTPError{
 			Method: req.Method,
 			URL:    redactURL(req.URL),
 			Status: resp.StatusCode,
 			Body:   snippet(body),
 		}
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, limit+1))
+	if err != nil {
+		return nil, fmt.Errorf("%s %s: yanıt okunamadı: %w", req.Method, redactURL(req.URL), err)
 	}
 	if int64(len(body)) > limit {
 		return nil, fmt.Errorf("%s %s: yanıt çok büyük (> %d bayt)", req.Method, redactURL(req.URL), limit)
@@ -269,14 +272,26 @@ func (c *Client) SearchItems(ctx context.Context, q ItemsQuery) ([]Item, error) 
 		if err != nil {
 			return nil, err
 		}
-		before := len(items)
+		before, beforeProps := len(items), countProps(items)
 		items = mergeItems(items, res.Results)
-		// Stop on a short page, or when a full page brought nothing new: a
-		// server (or proxy) that ignores offset would otherwise loop forever.
-		if len(res.Results) < c.pageSize || len(items) == before {
+		// Only an empty page, or one that brought nothing new, ends the
+		// search. A short page does not: with property.* included the server
+		// may apply offset/limit to item × property rows, so a "full" page of
+		// rows can decode into far fewer items than the page size. The
+		// nothing-new check also stops a server (or proxy) that ignores
+		// offset from looping forever.
+		if len(res.Results) == 0 || (len(items) == before && countProps(items) == beforeProps) {
 			return items, nil
 		}
 	}
+}
+
+func countProps(items []Item) int {
+	n := 0
+	for i := range items {
+		n += len(items[i].Properties)
+	}
+	return n
 }
 
 // sortUnsupported reports the error Artifactory OSS returns for .sort().
