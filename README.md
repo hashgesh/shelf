@@ -11,7 +11,7 @@ access is needed.
 The interface is in English or Turkish, picked from the system language
 (see [Language](#language)).
 
-![shelf main screen](docs/tui.png)
+![shelf demo: browsing packages, filtering binaries, the detail window, search, matrix and help](docs/shelf.gif)
 
 ## Contents
 
@@ -164,8 +164,6 @@ Pressing `Enter` in the binary table shows the full package ID, package and reci
 revision, Artifactory path, all settings and options, the matching profile(s) and a
 ready-to-use `conan install` command.
 
-![detail window](docs/detail.png)
-
 The command pins the recipe revision and uses the matching profile with `-pr:h`
 (with no match, each setting is passed with `-s`). The binary's options are added with `-o`:
 
@@ -188,8 +186,6 @@ copying fails, the command is shown in the detail window.
 ### Matrix view
 
 Opened with `m`: rows are the newest versions of packages, columns are profiles.
-
-![matrix view](docs/matrix.png)
 
 - `✓` at least one binary exists (the number next to it is the count of matching binaries, e.g. shared + static).
 - `✗` no binary.
