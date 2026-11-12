@@ -64,7 +64,7 @@ downloads no external dependencies.
 ## Quick start
 
 ```sh
-shelf config init     # asks for the Artifactory URL, user, token and repo
+shelf config init     # settings form: Artifactory URL, user, token, repo
 shelf                 # opens the interactive interface
 shelf list            # packages and their versions
 shelf show zlib       # binary table for the newest zlib version
@@ -76,7 +76,7 @@ shelf matrix          # package × profile table
 Settings are read in this order of precedence: **command-line flag > environment variable > config file**.
 
 ```sh
-shelf config init     # interactive setup (token input is hidden)
+shelf config init     # settings form; run it again (or `config edit`) to change a value
 shelf config show     # effective settings and the source of each value; token/password masked
 ```
 
@@ -200,7 +200,7 @@ shelf                                      interactive interface
 shelf list [filter]                        packages and their versions
 shelf show <name>[/<version>[@user/channel]]   binary table
 shelf matrix [package-filter]              package × profile table
-shelf config init | show                   configuration
+shelf config init | edit | show            configuration
 shelf --version                            version information
 ```
 
