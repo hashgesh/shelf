@@ -18,8 +18,8 @@ import (
 // runTUI opens the interactive browser. Configuration errors surface before
 // the screen switches, so they keep their exit code.
 func (a *app) runTUI(cmd *cobra.Command) error {
-	out, ok := cmd.OutOrStdout().(*os.File)
-	if !ok || !term.IsTerminal(int(out.Fd())) {
+	out := cmd.OutOrStdout()
+	if !isTerminal(out) {
 		return errors.New(i18n.T("the interactive interface needs a terminal; use 'shelf list' or 'shelf show' in scripts"))
 	}
 	cfg, src, label, err := a.openSource(cmd)
@@ -30,18 +30,25 @@ func (a *app) runTUI(cmd *cobra.Command) error {
 		label = strings.Join(cfg.Repos, ", ")
 	}
 	opts := a.loadOptions(cfg)
-	noColor := a.flags.noColor
-	if v, ok := a.lookupEnv("NO_COLOR"); ok && v != "" {
-		noColor = true
-	}
 	return tui.Run(tui.Options{
 		Load: func(ctx context.Context) (*conan.LoadResult, error) {
 			return conan.Load(ctx, src, opts)
 		},
-		Copy:      clipboard.New(out).Copy,
+		Copy:      clipboard.New(out.(*os.File)).Copy,
 		RepoLabel: label,
 		ASCII:     a.flags.ascii,
-		NoColor:   noColor,
+		NoColor:   a.noColor(),
 		Output:    out,
 	})
+}
+
+// isTerminal reports whether a stream is an interactive terminal.
+func isTerminal(v any) bool {
+	f, ok := v.(*os.File)
+	return ok && term.IsTerminal(int(f.Fd()))
+}
+
+func (a *app) noColor() bool {
+	v, ok := a.lookupEnv("NO_COLOR")
+	return a.flags.noColor || (ok && v != "")
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashgesh/shelf/internal/config"
 	"github.com/hashgesh/shelf/internal/i18n"
+	"github.com/hashgesh/shelf/internal/tui"
 )
 
 func (a *app) newConfigCmd() *cobra.Command {
@@ -24,10 +25,11 @@ func (a *app) newConfigCmd() *cobra.Command {
 	}
 	cmd.AddCommand(
 		&cobra.Command{
-			Use:   "init",
-			Short: i18n.T("Create a config file interactively"),
-			Args:  noArgs,
-			RunE:  a.runConfigInit,
+			Use:     "init",
+			Aliases: []string{"edit"},
+			Short:   i18n.T("Create or edit the config file interactively"),
+			Args:    noArgs,
+			RunE:    a.runConfigInit,
 		},
 		&cobra.Command{
 			Use:   i18n.T("show [flags]"),
@@ -166,9 +168,36 @@ func (a *app) runConfigInit(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	path = cur.Path
-
-	p := newPrompter(cmd.InOrStdin(), cmd.OutOrStdout())
 	out := cmd.OutOrStdout()
+
+	// On a terminal the settings form is used; pipes get the line-by-line
+	// interview so scripts can answer it.
+	if isTerminal(cmd.InOrStdin()) && isTerminal(out) {
+		form := *cur
+		// The default profiles folder follows CONAN_HOME, so it is shown but
+		// never written to the file.
+		if cur.Sources[config.KeyProfilesDir] == config.SourceDefault {
+			form.ProfilesDir = ""
+		}
+		next, ok, err := tui.EditConfig(tui.ConfigFormOptions{
+			Config: &form, Path: path, ProfilesDefault: config.DefaultProfilesDir(a.lookupEnv),
+			ASCII: a.flags.ascii, NoColor: a.noColor(), Input: cmd.InOrStdin(), Output: out,
+		})
+		if err != nil {
+			return err
+		}
+		if !ok {
+			fmt.Fprintln(out, i18n.T("Canceled, nothing was saved."))
+			return nil
+		}
+		if err := config.Save(path, next); err != nil {
+			return err
+		}
+		fmt.Fprintf(out, i18n.T("Saved: %s\n"), path)
+		return nil
+	}
+
+	p := newPrompter(cmd.InOrStdin(), out)
 	fmt.Fprintln(out, i18n.T("shelf configuration"))
 	fmt.Fprintf(out, i18n.T("File: %s\n"), path)
 	if cur.FileFound {
