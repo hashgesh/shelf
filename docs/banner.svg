@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <!-- GitHub social preview size (1280x640, 1.91:1). Export to PNG and upload under
+       Settings > General > Social preview — GitHub does not accept SVG there. -->
+  <defs>
+    <filter id="glowC" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowM" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="coreGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4da6ff"/>
+      <stop offset="1" stop-color="#00d9ff"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#5fb8ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0090ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGlow" cx="30%" cy="35%" r="60%">
+      <stop offset="0" stop-color="#10264d" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#050b16" stop-opacity="1"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bgGlow)"/>
+  <g stroke="#14284d" stroke-width="1">
+    <path d="M0 160 H1280 M0 320 H1280 M0 480 H1280"/>
+    <path d="M320 0 V640 M640 0 V640 M960 0 V640"/>
+  </g>
+
+  <!-- mark, left side: shelves of binaries, gaps where a profile has no match -->
+  <g transform="translate(150 190)">
+    <g stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round" opacity="0.85">
+      <path d="M130 30 L130 8"/>
+      <path d="M58 44 L40 30"/>
+      <path d="M202 44 L220 30"/>
+      <path d="M16 130 L38 130"/>
+      <path d="M244 130 L222 130"/>
+      <path d="M58 216 L40 230"/>
+      <path d="M202 216 L220 230"/>
+      <path d="M130 230 L130 252"/>
+      <circle cx="130" cy="4" r="4" fill="#58a6ff"/>
+      <circle cx="36" cy="26" r="4" fill="#58a6ff"/>
+      <circle cx="224" cy="26" r="4" fill="#58a6ff"/>
+      <circle cx="12" cy="130" r="4" fill="#58a6ff"/>
+      <circle cx="248" cy="130" r="4" fill="#58a6ff"/>
+      <circle cx="36" cy="234" r="4" fill="#58a6ff"/>
+      <circle cx="224" cy="234" r="4" fill="#58a6ff"/>
+      <circle cx="130" cy="256" r="4" fill="#58a6ff"/>
+    </g>
+    <rect x="40" y="30" width="180" height="200" rx="14"
+          stroke="#1c3a66" stroke-width="2.5" fill="#0b1526"/>
+    <rect x="40" y="30" width="180" height="200" rx="14"
+          stroke="#58a6ff" stroke-width="1.5" fill="none" opacity="0.55" filter="url(#glowC)"/>
+
+    <!-- shelf boards -->
+    <rect x="52" y="95" width="156" height="9" rx="2" fill="#14284d"/>
+    <rect x="52" y="162" width="156" height="9" rx="2" fill="#14284d"/>
+
+    <!-- matched binary, glowing -->
+    <circle cx="128" cy="80" r="48" fill="url(#coreGlow)"/>
+    <rect x="106" y="65" width="44" height="30" rx="6" fill="url(#coreGrad)" filter="url(#glowM)"/>
+    <text x="128" y="85" text-anchor="middle" fill="#06111f" font-family="monospace" font-size="11" font-weight="700">x64</text>
+
+    <!-- binaries on the shelves -->
+    <g fill="#0d1930" stroke="#274b80" stroke-width="1.5">
+      <rect x="56" y="65" width="44" height="30" rx="6"/>
+      <rect x="56" y="132" width="44" height="30" rx="6"/>
+      <rect x="106" y="132" width="44" height="30" rx="6"/>
+      <rect x="156" y="132" width="44" height="30" rx="6"/>
+      <rect x="56" y="200" width="44" height="30" rx="6"/>
+      <rect x="156" y="200" width="44" height="30" rx="6"/>
+    </g>
+
+    <!-- empty slots: no binary for this profile -->
+    <g fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.55">
+      <rect x="156" y="65" width="44" height="30" rx="6"/>
+      <rect x="106" y="200" width="44" height="30" rx="6"/>
+    </g>
+  </g>
+
+  <!-- wordmark + tagline, right side -->
+  <g transform="translate(470 0)">
+    <text x="0" y="300" font-family="'Share Tech Mono', Consolas, monospace" font-weight="700"
+          font-size="96" letter-spacing="2" fill="#dce9ff">shelf</text>
+    <rect x="306" y="240" width="30" height="60" rx="3" fill="#58a6ff" filter="url(#glowC)"/>
+    <text x="4" y="350" font-family="'Share Tech Mono', Consolas, monospace" font-size="22"
+          letter-spacing="1" fill="#7d9cc7">browse Conan 2 packages in Artifactory</text>
+    <text x="4" y="385" font-family="'Share Tech Mono', Consolas, monospace" font-size="16"
+          letter-spacing="0.5" fill="#46587a">tui + cli &#183; binary matrix &#183; profile matching &#183; single file, no runtime</text>
+  </g>
+</svg>

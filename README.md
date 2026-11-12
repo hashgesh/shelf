@@ -1,4 +1,6 @@
-# shelf
+<div align="center">
+  <img src="docs/banner.svg" width="800" alt="shelf — browse Conan 2 packages in Artifactory from the terminal"/>
+</div>
 
 A TUI + CLI for browsing Conan 2 packages in JFrog Artifactory from the terminal.
 The Artifactory UI shows binaries only as hashes. shelf lays them out in a table by
